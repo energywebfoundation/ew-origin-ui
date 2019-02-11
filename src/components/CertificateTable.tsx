@@ -1,7 +1,6 @@
 // Copyright 2018 Energy Web Foundation
-//
 // This file is part of the Origin Application brought to you by the Energy Web Foundation,
-// a global non-profit organization focused on accelerating blockchain technology across the energy sector, 
+// a global non-profit organization focused on accelerating blockchain technology across the energy sector,
 // incorporated in Zug, Switzerland.
 //
 // The Origin Application is free software: you can redistribute it and/or modify
@@ -13,11 +12,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details, at <http://www.gnu.org/licenses/>.
 //
-// @authors: slock.it GmbH, Heiko Burkhardt, heiko.burkhardt@slock.it
+// @authors: slock.it GmbH; Heiko Burkhardt, heiko.burkhardt@slock.it; Martin Kuechler, martin.kuchler@slock.it
 
 import * as React from 'react';
 import * as OriginIssuer from 'ew-origin-lib';
-import * as EwAsset from 'ew-asset-registry-lib'; 
+import * as EwAsset from 'ew-asset-registry-lib';
 import * as EwUser from 'ew-user-registry-lib';
 import * as General from 'ew-utils-general-lib';
 import { OrganizationFilter } from './OrganizationFilter';
@@ -219,7 +218,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
             return <Redirect push to={'/' + this.props.baseUrl + '/certificates/detail_view/' + this.state.detailViewForCertificateId} />;
         }
 
-        
+
 
         const defaultWidth = 106;
         const getKey = TableUtils.getKey;
@@ -248,7 +247,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
                 const claimed = enrichedCertificateData.certificate.retired;
                 const forSale = enrichedCertificateData.certificate.owner === enrichedCertificateData.producingAsset.owner;
 
-                if (this.props.switchedToOrganization 
+                if (this.props.switchedToOrganization
                     && enrichedCertificateData.certificate.owner.address
                     !== this.props.currentUser.id
                 ) {
@@ -269,9 +268,9 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
                 enrichedCertificateData.certificateOwner.organization,
                 EwAsset.ProducingAsset.Type[enrichedCertificateData.producingAsset.offChainProperties.assetType],
                 new Date(enrichedCertificateData.producingAsset.offChainProperties.operationalSince * 1000).toDateString(),
-                enrichedCertificateData.producingAsset.offChainProperties.gpsLongitude + 
+                enrichedCertificateData.producingAsset.offChainProperties.gpsLongitude +
                     ' ' + enrichedCertificateData.producingAsset.offChainProperties.gpsLatitude,
-                enrichedCertificateData.producingAsset.offChainProperties.city + 
+                enrichedCertificateData.producingAsset.offChainProperties.city +
                     ', ' + enrichedCertificateData.producingAsset.offChainProperties.country,
                 enrichedCertificateData.producingAsset.offChainProperties.capacityWh / 1000,
                 EwAsset.ProducingAsset.Compliance[enrichedCertificateData.producingAsset.offChainProperties.complianceRegistry],

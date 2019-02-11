@@ -1,7 +1,6 @@
 // Copyright 2018 Energy Web Foundation
-//
 // This file is part of the Origin Application brought to you by the Energy Web Foundation,
-// a global non-profit organization focused on accelerating blockchain technology across the energy sector, 
+// a global non-profit organization focused on accelerating blockchain technology across the energy sector,
 // incorporated in Zug, Switzerland.
 //
 // The Origin Application is free software: you can redistribute it and/or modify
@@ -13,7 +12,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details, at <http://www.gnu.org/licenses/>.
 //
-// @authors: slock.it GmbH, Heiko Burkhardt, heiko.burkhardt@slock.it
+// @authors: slock.it GmbH; Heiko Burkhardt, heiko.burkhardt@slock.it; Martin Kuechler, martin.kuchler@slock.it
 
 import * as React from 'react';
 import FadeIn from 'react-fade-in';
@@ -29,7 +28,7 @@ import * as General from 'ew-utils-general-lib';
 import * as OriginIssuer from 'ew-origin-lib';
 import * as Market from 'ew-market-lib';
 import * as EwUser from 'ew-user-registry-lib';
-import * as EwAsset from 'ew-asset-registry-lib'; 
+import * as EwAsset from 'ew-asset-registry-lib';
 import { MapContainer } from './MapContainer';
 
 import './DetailView.scss';
@@ -86,22 +85,22 @@ export class ProducingAssetDetailView extends React.Component<DetailViewProps, D
         if (this.props.certificates.length > 0) {
           this.setState({
             notSoldCertificates: this.props.certificates
-              .map((certificate: OriginIssuer.Certificate.Entity) => 
-                certificate.owner.address === selectedAsset.owner.address 
+              .map((certificate: OriginIssuer.Certificate.Entity) =>
+                certificate.owner.address === selectedAsset.owner.address
                 && certificate.assetId.toString() === selectedAsset.id ?
-                  certificate.powerInW 
+                  certificate.powerInW
                   : 0)
               .reduce((a, b) => a + b)
           });
         }
         this.setState({
           owner: await (new EwUser.User(selectedAsset.owner.address, props.conf as any).sync())
-  
+
         });
-  
+
       }
     }
- 
+
 
   }
 

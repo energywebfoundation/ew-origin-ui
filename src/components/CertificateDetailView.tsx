@@ -1,7 +1,6 @@
 // Copyright 2018 Energy Web Foundation
-//
 // This file is part of the Origin Application brought to you by the Energy Web Foundation,
-// a global non-profit organization focused on accelerating blockchain technology across the energy sector, 
+// a global non-profit organization focused on accelerating blockchain technology across the energy sector,
 // incorporated in Zug, Switzerland.
 //
 // The Origin Application is free software: you can redistribute it and/or modify
@@ -13,7 +12,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details, at <http://www.gnu.org/licenses/>.
 //
-// @authors: slock.it GmbH, Heiko Burkhardt, heiko.burkhardt@slock.it
+// @authors: slock.it GmbH; Heiko Burkhardt, heiko.burkhardt@slock.it; Martin Kuechler, martin.kuchler@slock.it
 
 import * as React from 'react';
 import FadeIn from 'react-fade-in';
@@ -26,7 +25,7 @@ import * as solar from '../../assets/icon_solar.svg';
 import moment from 'moment';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 import * as OriginIssuer from 'ew-origin-lib';
-import * as EwAsset from 'ew-asset-registry-lib'; 
+import * as EwAsset from 'ew-asset-registry-lib';
 import * as EwUser from 'ew-user-registry-lib';
 import { MapContainer } from './MapContainer';
 import { ProducingAssetDetailView } from './ProducingAssetDetailView';
@@ -85,13 +84,13 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
 
   init(props: DetailViewProps) {
     if (props.id !== null && props.id !== undefined) {
-        const selectedCertificate: OriginIssuer.Certificate.Entity = 
+        const selectedCertificate: OriginIssuer.Certificate.Entity =
         props.certificates.find((c: OriginIssuer.Certificate.Entity) => c.id === props.id.toString());
         if (selectedCertificate) {
-   
+
             this.getOwner(props, selectedCertificate, () => this.enrichEvent(props, selectedCertificate));
         }
-      }  
+      }
 
   }
 
@@ -157,7 +156,7 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
 
   render() {
 
-    const selectedCertificate = this.props.id !== null && this.props.id !== undefined ? 
+    const selectedCertificate = this.props.id !== null && this.props.id !== undefined ?
         this.props.certificates.find((c: OriginIssuer.Certificate.Entity) => c.id === this.props.id.toString()) :
         null;
 
@@ -231,13 +230,13 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
                 <table >
                   <tbody>
                     {data.map((row: any) => (
-                    
+
                       <tr key={row.label} >
-                       
+
                         {row.map((col) => (
 
                           <td key={col.label} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1}>
-               
+
                             <div className='Label'>{col.label}</div>
                             <div className='Data'>{col.data} {col.tip && (<span>{col.tip}</span>)}</div>
 
