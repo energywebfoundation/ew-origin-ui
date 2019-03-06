@@ -28,10 +28,10 @@ const MyMapComponent = withScriptjs(withGoogleMap((props: any) =>
 
 
         defaultZoom={13}
-        defaultCenter={{ lat: parseFloat(props.asset.gpsLatitude), lng: parseFloat(props.asset.gpsLongitude) }}
+        defaultCenter={{ lat: parseFloat(props.asset.offChainProperties.gpsLatitude), lng: parseFloat(props.asset.offChainProperties.gpsLongitude) }}
     >
         <Marker
-            position={{ lat: parseFloat(props.asset.gpsLatitude), lng: parseFloat(props.asset.gpsLongitude) }} />
+            position={{ lat: parseFloat(props.asset.offChainProperties.gpsLatitude), lng: parseFloat(props.asset.offChainProperties.gpsLongitude) }} />
     </GoogleMap>
 ))
 

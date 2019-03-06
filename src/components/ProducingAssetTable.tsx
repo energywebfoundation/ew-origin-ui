@@ -78,22 +78,22 @@ export class ProducingAssetTable extends React.Component<ProducingAssetTableProp
 
     }
 
-    async componentWillReceiveProps(newProps: ProducingAssetTableProps): Promise<void>  {
+    async componentWillReceiveProps(newProps: ProducingAssetTableProps): Promise<void> {
         await this.getOrganizationNames(newProps);
     }
 
-    async getOrganizationNames(props: ProducingAssetTableProps): Promise<void>  {
+    async getOrganizationNames(props: ProducingAssetTableProps): Promise<void> {
 
         const promieses = props.producingAssets.map(async (producingAsset: EwAsset.ProducingAsset.Entity, index: number) =>
             ({
                 producingAsset: producingAsset,
                 notSoldCertificates: this.props.certificates
                     .filter((certificate: OriginIssuer.Certificate.Entity) =>
-                        certificate.owner === producingAsset.owner && certificate.assetId.toString() === producingAsset.id
+                        certificate.owner === producingAsset.owner.address && certificate.assetId.toString() === producingAsset.id
                     ),
                 organizationName: (await (new EwUser.User(producingAsset.owner.address, props.conf as any))
-                        .sync()
-                    ).organization
+                    .sync()
+                ).organization
             })
         );
 

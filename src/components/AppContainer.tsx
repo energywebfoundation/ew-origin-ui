@@ -89,7 +89,7 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
         );
 
         const demandContractEventHandler: General.ContractEventHandler = new General.ContractEventHandler(
-            conf.blockchainProperties.demandLogicInstance,
+            conf.blockchainProperties.marketLogicInstance,
             currentBlockNumber
         );
 

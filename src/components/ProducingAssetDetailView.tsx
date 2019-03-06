@@ -74,11 +74,11 @@ export class ProducingAssetDetailView extends React.Component<DetailViewProps, D
 
   }
 
-  async componentWillReceiveProps(newProps: DetailViewProps): Promise<void>  {
+  async componentWillReceiveProps(newProps: DetailViewProps): Promise<void> {
     await this.getOwner(newProps);
   }
 
-  async getOwner(props: DetailViewProps): Promise<void>  {
+  async getOwner(props: DetailViewProps): Promise<void> {
     if (props.id !== null && props.id !== undefined) {
       const selectedAsset = props.producingAssets.find((p: EwAsset.ProducingAsset.Entity) => p.id === props.id.toString());
       if (selectedAsset) {
@@ -86,8 +86,8 @@ export class ProducingAssetDetailView extends React.Component<DetailViewProps, D
           this.setState({
             notSoldCertificates: this.props.certificates
               .map((certificate: OriginIssuer.Certificate.Entity) =>
-                certificate.owner.address === selectedAsset.owner.address
-                && certificate.assetId.toString() === selectedAsset.id ?
+                certificate.owner === selectedAsset.owner.address
+                  && certificate.assetId.toString() === selectedAsset.id ?
                   certificate.powerInW
                   : 0)
               .reduce((a, b) => a + b)
@@ -169,64 +169,65 @@ export class ProducingAssetDetailView extends React.Component<DetailViewProps, D
     }
 
     const pageBody = <div className='PageBody'>
-    {!selectedAsset ?
-      <div className='text-center'><strong>Asset not found</strong></div> :
-      <table >
-        <tbody>
-          {data.map((row: any) => (
-            <tr key={row.key} >
-              {row.map((col, cIndex) => {
-                if (col.isAdditionalInformation && !this.props.addSearchField) {
-                  return null;
-                }
-                return (
-                <td key={col.key} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1}>
-                  <div className='Label'>{col.label}</div>
-                  <div className='Data'>{col.data} {col.tip && (<span>{col.tip}</span>)}</div>
-                  {col.image && (
-                    col.type !== 'map'
-                      ?
-                      <div className={`Image`}>
-                        <img src={col.image} />
-                        {col.type === 'map' && (
-                          <img src={marker as any} className='Marker' />
-                        )}
-                      </div>
-                      :
-                      <div className={`Image Map`}>
-                        <MapContainer asset={selectedAsset} />
+      {!selectedAsset ?
+        <div className='text-center'><strong>Asset not found</strong></div> :
+        <table >
+          <tbody>
+            {data.map((row: any) => (
+              <tr key={row.key} >
+                {row.map((col, cIndex) => {
+                  if (col.isAdditionalInformation && !this.props.addSearchField) {
+                    return null;
+                  }
+                  return (
+                    <td key={col.key} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1}>
+                      <div className='Label'>{col.label}</div>
+                      <div className='Data'>{col.data} {col.tip && (<span>{col.tip}</span>)}</div>
+                      {col.image && (
+                        col.type !== 'map'
+                          ?
+                          <div className={`Image`}>
+                            <img src={col.image} />
+                            {col.type === 'map' && (
+                              <img src={marker as any} className='Marker' />
+                            )}
+                          </div>
+                          :
+                          <div className={`Image Map`}>
+                            <MapContainer asset={selectedAsset} />
 
-                      </div>
-                  )}
-                  {col.description && (<div className='Description'>{col.description}</div>)}
-                </td>
-              ); })
-              }
-            </tr>
-          ))
-          }
-        </tbody>
-      </table>
-    }
-  </div>;
+                          </div>
+                      )}
+                      {col.description && (<div className='Description'>{col.description}</div>)}
+                    </td>
+                  );
+                })
+                }
+              </tr>
+            ))
+            }
+          </tbody>
+        </table>
+      }
+    </div>;
 
     return (
       <div>
         {this.props.addSearchField ?
-        <div className='DetailViewWrapper' >
-          <div className='FindAsset'>
-            <input onChange={this.onInputChange} defaultValue={this.props.id || this.props.id === 0 ? this.props.id.toString() : ''} />
+          <div className='DetailViewWrapper' >
+            <div className='FindAsset'>
+              <input onChange={this.onInputChange} defaultValue={this.props.id || this.props.id === 0 ? this.props.id.toString() : ''} />
 
-            <Link className='btn btn-primary find-asset-button' to={`/${this.props.baseUrl}/assets/producing_detail_view/${this.state.newId}`}>Find Asset</Link>
+              <Link className='btn btn-primary find-asset-button' to={`/${this.props.baseUrl}/assets/producing_detail_view/${this.state.newId}`}>Find Asset</Link>
 
-          </div>
-          <div className='PageContentWrapper'>
-            {/* <div className='PageHeader'>
+            </div>
+            <div className='PageContentWrapper'>
+              {/* <div className='PageHeader'>
                 <div className='PageTitle'>Berlin II, <span>Berlin, Germany</span></div>
               </div> */}
               {pageBody}
-          </div>
-        </div> : pageBody}
+            </div>
+          </div> : pageBody}
 
       </div>
 

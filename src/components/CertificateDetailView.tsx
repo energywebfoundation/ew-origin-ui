@@ -33,7 +33,7 @@ import { ProducingAssetDetailView } from './ProducingAssetDetailView';
 import './DetailView.scss';
 
 export interface DetailViewProps {
-    conf: General.Configuration.Entity;
+  conf: General.Configuration.Entity;
   id: number;
   baseUrl: string;
   certificates: OriginIssuer.Certificate.Entity[];
@@ -84,22 +84,22 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
 
   init(props: DetailViewProps) {
     if (props.id !== null && props.id !== undefined) {
-        const selectedCertificate: OriginIssuer.Certificate.Entity =
+      const selectedCertificate: OriginIssuer.Certificate.Entity =
         props.certificates.find((c: OriginIssuer.Certificate.Entity) => c.id === props.id.toString());
-        if (selectedCertificate) {
+      if (selectedCertificate) {
 
-            this.getOwner(props, selectedCertificate, () => this.enrichEvent(props, selectedCertificate));
-        }
+        this.getOwner(props, selectedCertificate, () => this.enrichEvent(props, selectedCertificate));
       }
+    }
 
   }
 
   async getOwner(props: DetailViewProps, selectedCertificate: OriginIssuer.Certificate.Entity, cb) {
 
     this.setState({
-      owner: await (new EwUser.User(selectedCertificate.owner.address, props.conf as any).sync())
+      owner: await (new EwUser.User(selectedCertificate.owner, props.conf as any).sync())
 
-    },            cb);
+    }, cb);
 
   }
 
@@ -157,8 +157,8 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
   render() {
 
     const selectedCertificate = this.props.id !== null && this.props.id !== undefined ?
-        this.props.certificates.find((c: OriginIssuer.Certificate.Entity) => c.id === this.props.id.toString()) :
-        null;
+      this.props.certificates.find((c: OriginIssuer.Certificate.Entity) => c.id === this.props.id.toString()) :
+      null;
 
     let data;
     let events = [];

@@ -89,7 +89,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
             ({
                 certificate: certificate,
                 producingAsset: this.props.producingAssets.find((asset: EwAsset.ProducingAsset.Entity) => asset.id === certificate.assetId.toString()),
-                certificateOwner: (await (new EwUser.User(certificate.owner.address, props.conf as any)).sync())
+                certificateOwner: (await (new EwUser.User(certificate.owner, props.conf as any)).sync())
             })
         );
 
@@ -104,7 +104,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
     claimCertificate(certificateId: number) {
         const certificate: OriginIssuer.Certificate.Entity = this.props.certificates
             .find((cert: OriginIssuer.Certificate.Entity) => cert.id === certificateId.toString());
-        if (certificate && this.props.currentUser && this.props.currentUser.id === certificate.owner.address) {
+        if (certificate && this.props.currentUser && this.props.currentUser.id === certificate.owner) {
             //TODO
             //certificate.claim(this.props.currentUser.accountAddress);
         }
@@ -245,10 +245,10 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
         const filteredEnrichedCertificateData = this.state.enrichedCertificateData
             .filter((enrichedCertificateData: EnrichedCertificateData) => {
                 const claimed = enrichedCertificateData.certificate.retired;
-                const forSale = enrichedCertificateData.certificate.owner === enrichedCertificateData.producingAsset.owner;
+                const forSale = enrichedCertificateData.certificate.owner === enrichedCertificateData.producingAsset.owner.address;
 
                 if (this.props.switchedToOrganization
-                    && enrichedCertificateData.certificate.owner.address
+                    && enrichedCertificateData.certificate.owner
                     !== this.props.currentUser.id
                 ) {
                     return false;
@@ -269,9 +269,9 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
                 EwAsset.ProducingAsset.Type[enrichedCertificateData.producingAsset.offChainProperties.assetType],
                 new Date(enrichedCertificateData.producingAsset.offChainProperties.operationalSince * 1000).toDateString(),
                 enrichedCertificateData.producingAsset.offChainProperties.gpsLongitude +
-                    ' ' + enrichedCertificateData.producingAsset.offChainProperties.gpsLatitude,
+                ' ' + enrichedCertificateData.producingAsset.offChainProperties.gpsLatitude,
                 enrichedCertificateData.producingAsset.offChainProperties.city +
-                    ', ' + enrichedCertificateData.producingAsset.offChainProperties.country,
+                ', ' + enrichedCertificateData.producingAsset.offChainProperties.country,
                 enrichedCertificateData.producingAsset.offChainProperties.capacityWh / 1000,
                 EwAsset.ProducingAsset.Compliance[enrichedCertificateData.producingAsset.offChainProperties.complianceRegistry],
                 new Date(enrichedCertificateData.certificate.creationTime * 1000).toDateString(),
