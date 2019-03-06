@@ -105,12 +105,12 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
 
   async enrichEvent(props: DetailViewProps, selectedCertificate: OriginIssuer.Certificate.Entity) {
     const asset = this.props.producingAssets.find((p: EwAsset.ProducingAsset.Entity) => p.id === selectedCertificate.assetId.toString());
-    console.log('###')
-    console.log(await selectedCertificate.getAllCertificateEvents())
+
     const jointEvents = (await selectedCertificate.getAllCertificateEvents())
       .map(async (event: any) => {
         let lable;
         let description;
+
 
         switch (event.event) {
           case 'LogNewMeterRead':
@@ -120,18 +120,24 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
           case 'LogCreatedCertificate':
             const organization = (await (new EwUser.User(event.returnValues.owner, props.conf as any).sync())).organization;
             lable = 'Certificate Created';
-            description = 'Initially owned by ' + organization;
+            description = 'Certificate created by asset ' + selectedCertificate.assetId;
             break;
           case 'LogRetireRequest':
             lable = 'Certificate Claimed';
             description = 'Initiated by ' + this.state.owner.organization;
             break;
-          case 'LogCertificateOwnerChanged':
-            const newOwner = (await (new EwUser.User((event as any).returnValues._newOwner, props.conf as any).sync())).organization;
-            const oldOwner = (await (new EwUser.User((event as any).returnValues._oldOwner, props.conf as any).sync())).organization;
-            lable = 'Certificate Owner Change';
-            description = 'Ownership changed from ' + oldOwner + ' to ' + newOwner;
+          case 'Transfer':
+            if ((event as any).returnValues._from === '0x0000000000000000000000000000000000000000') {
+              lable = 'Set Initial Owner';
+              description = (await (new EwUser.User((event as any).returnValues._to, props.conf as any).sync())).organization;
+            } else {
+              const newOwner = (await (new EwUser.User((event as any).returnValues._to, props.conf as any).sync())).organization;
+              const oldOwner = (await (new EwUser.User((event as any).returnValues._from, props.conf as any).sync())).organization;
+              lable = 'Certificate Owner Change';
+              description = 'Ownership changed from ' + oldOwner + ' to ' + newOwner;
+            }
             break;
+       
           default:
             lable = event.event;
 
@@ -193,10 +199,7 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
             data: asset.id,
             link: `/${this.props.baseUrl}/assets/producing_detail_view/${asset.id}`
           },
-          {
-            label: 'Co2 saved (kg)',
-            data: 0//(selectedCertificate.coSaved / 1000).toFixed(3)
-          },
+
           {
             label: 'Certified Energy (kWh)',
             data: (selectedCertificate.powerInW / 1000).toFixed(3)
