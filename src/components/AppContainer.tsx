@@ -158,7 +158,7 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
         //     this.props.actions.demandCreatedOrUpdated(d)
         // );
 
-        (await OriginIssuer.Certificate.getAllCertificates(conf))
+        (await OriginIssuer.Certificate.getActiveCertificates(conf))
             .forEach((certificate: OriginIssuer.Certificate.Entity) =>
                 this.props.actions.certificateCreatedOrUpdated(certificate)
             );
