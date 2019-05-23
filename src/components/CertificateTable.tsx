@@ -252,7 +252,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
 
         const filteredEnrichedCertificateData = this.state.enrichedCertificateData
             .filter((enrichedCertificateData: EnrichedCertificateData) => {
-                const claimed = enrichedCertificateData.certificate.retired;
+                const claimed = enrichedCertificateData.certificate.status === OriginIssuer.Certificate.Status.Retired;
                 const forSale = enrichedCertificateData.certificate.owner === enrichedCertificateData.producingAsset.owner.address;
                 const forSaleERC20 = enrichedCertificateData.certificate.acceptedToken &&
                     this.props.conf.blockchainProperties.web3.utils.toBN(enrichedCertificateData.certificate.acceptedToken).toString() !== '0' &&

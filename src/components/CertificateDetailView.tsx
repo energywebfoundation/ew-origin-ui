@@ -185,7 +185,7 @@ export class CertificateDetailView extends React.Component<DetailViewProps, Deta
           },
           {
             label: 'Claimed',
-            data: selectedCertificate.retired ? 'yes' : 'no'
+            data: selectedCertificate.status === OriginIssuer.Certificate.Status.Retired ? 'yes' : 'no'
           },
           {
             label: 'Producing Asset Id',
