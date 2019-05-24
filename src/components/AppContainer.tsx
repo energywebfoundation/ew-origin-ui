@@ -20,22 +20,18 @@ import Web3 from 'web3';
 
 import { Certificates } from './Certificates';
 import { Route, Switch } from 'react-router-dom';
-// import { Demands } from './Demands';
 import { StoreState, Actions } from '../types';
 import { Header } from './Header';
-import { Footer } from './Footer';
-// import { Legal } from './Legal';
-// import { About } from './About';
 import { Asset } from './Asset';
 import { Admin } from './Admin';
 import * as queryString from 'query-string';
 import './AppContainer.scss';
-import * as General from 'ew-utils-general-lib';
 import * as OriginIssuer from 'ew-origin-lib';
-import * as Market from 'ew-market-lib';
 import * as EwAsset from 'ew-asset-registry-lib';
 import * as EwUser from 'ew-user-registry-lib';
 import * as Winston from 'winston';
+import { Configuration, ContractEventHandler, EventHandlerManager } from 'ew-utils-general-lib';
+import { createBlockchainProperties as marketCreateBlockchainProperties } from 'ew-market-lib';
 
 export const API_BASE_URL = 'http://localhost:3030';
 
@@ -54,9 +50,9 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
         this.Asset = this.Asset.bind(this);
     }
 
-    async initEventHandler(conf: General.Configuration.Entity): Promise<void> {
+    async initEventHandler(conf: Configuration.Entity): Promise<void> {
         const currentBlockNumber: number = await conf.blockchainProperties.web3.eth.getBlockNumber();
-        const certificateContractEventHandler: General.ContractEventHandler = new General.ContractEventHandler(
+        const certificateContractEventHandler: ContractEventHandler = new ContractEventHandler(
             conf.blockchainProperties.certificateLogicInstance,
             currentBlockNumber
         );
@@ -68,7 +64,6 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
                     this.props.configuration).sync()
                 )
             )
-
         );
 
 
@@ -82,7 +77,7 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
                 });
 
 
-        const eventHandlerManager: General.EventHandlerManager = new General.EventHandlerManager(4000, conf);
+        const eventHandlerManager: EventHandlerManager = new EventHandlerManager(4000, conf);
         eventHandlerManager.registerEventHandler(certificateContractEventHandler);
         eventHandlerManager.start();
     }
@@ -92,13 +87,12 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
               
         const json = await response.json();
 
-        const marketBlockchainProperties: General.Configuration.BlockchainProperties = await Market
-            .createBlockchainProperties(null, web3, json.marketContractLookup) as any;
+        const marketBlockchainProperties: Configuration.BlockchainProperties = await marketCreateBlockchainProperties(null, web3, json.marketContractLookup) as any;
 
         return marketBlockchainProperties.marketLogicInstance;
     }
 
-    async initConf(originIssuerContractLookupAddress: string): Promise<General.Configuration.Entity> {
+    async initConf(originIssuerContractLookupAddress: string): Promise<Configuration.Entity> {
         let web3: any = null;
         const params: any = queryString.parse((this.props as any).location.search);
 
@@ -116,7 +110,7 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
             web3 = new Web3(web3.currentProvider);
         }
 
-        const blockchainProperties: General.Configuration.BlockchainProperties = await OriginIssuer
+        const blockchainProperties: Configuration.BlockchainProperties = await OriginIssuer
             .createBlockchainProperties(null, web3, originIssuerContractLookupAddress) as any;
 
         blockchainProperties.marketLogicInstance = await this.getMarketLogicInstance(originIssuerContractLookupAddress, web3);
@@ -142,8 +136,7 @@ export class AppContainer extends React.Component<AppContainerProps, {}> {
     }
 
     async componentDidMount(): Promise<void> {
-
-        const conf: General.Configuration.Entity = await this.initConf((this.props as any).match.params.contractAddress);
+        const conf: Configuration.Entity = await this.initConf((this.props as any).match.params.contractAddress);
         this.props.actions.configurationUpdated(conf);
         const accounts: string[] = await conf.blockchainProperties.web3.eth.getAccounts();
 

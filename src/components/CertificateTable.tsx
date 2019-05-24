@@ -18,14 +18,14 @@ import * as React from 'react';
 import * as OriginIssuer from 'ew-origin-lib';
 import * as EwAsset from 'ew-asset-registry-lib';
 import * as EwUser from 'ew-user-registry-lib';
-import * as General from 'ew-utils-general-lib';
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
 import { Redirect } from 'react-router-dom';
 import { Erc20TestToken } from 'ew-erc-test-contracts';
+import { Configuration } from 'ew-utils-general-lib';
 
 export interface CertificateTableProps {
-    conf: General.Configuration.Entity;
+    conf: Configuration.Entity;
     certificates: OriginIssuer.Certificate.Entity[];
     producingAssets: EwAsset.ProducingAsset.Entity[];
     currentUser: EwUser.User;
@@ -285,7 +285,7 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
                 `${enrichedCertificateData.producingAsset.offChainProperties.city}, ${enrichedCertificateData.producingAsset.offChainProperties.country}`,
                 EwAsset.ProducingAsset.Compliance[enrichedCertificateData.producingAsset.offChainProperties.complianceRegistry],
                 new Date(enrichedCertificateData.certificate.creationTime * 1000).toDateString(),
-                (enrichedCertificateData.certificate.powerInW / 1000).toFixed(3)
+                (enrichedCertificateData.certificate.powerInW / 1000)
             ];
         });
 

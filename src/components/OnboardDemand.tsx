@@ -17,15 +17,13 @@
 import * as React from 'react'
 import { Table } from '../elements/Table/Table'
 import { User } from 'ew-user-registry-lib';
-import { AssetType, TimeFrame, Currency } from 'ew-utils-general-lib';
+import { AssetType, TimeFrame, Currency, Configuration } from 'ew-utils-general-lib';
 import { Compliance } from 'ew-asset-registry-lib/dist/js/src/blockchain-facade/ProducingAsset';
-import * as General from 'ew-utils-general-lib';
-import * as Market from 'ew-market-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
-
+import { Demand } from 'ew-market-lib';
 
 export interface OnboardDemandProps {
-  configuration: General.Configuration.Entity,
+  configuration: Configuration.Entity,
   currentUser: User
   producingAssets: ProducingAsset.Entity[],
 }
@@ -75,7 +73,7 @@ export class OnboardDemand extends React.Component<OnboardDemandProps, {}> {
 
     transformedInput.targetWhPerPeriod = transformedInput.targetWhPerPeriod * 1000
 
-    const demandOffchainProps: Market.Demand.DemandOffchainproperties = {
+    const demandOffchainProps: Demand.DemandOffchainproperties = {
       timeframe: transformedInput.timeframe,
       pricePerCertifiedWh: creationDemandProperties.pricePerCertifiedWh,
       currency: creationDemandProperties.currency,
@@ -109,7 +107,7 @@ export class OnboardDemand extends React.Component<OnboardDemandProps, {}> {
     demandOffchainProps.locationRegion = transformedInput.locationRegion;
   }
 
-  const demandProps: Market.Demand.DemandOnChainProperties = {
+  const demandProps: Demand.DemandOnChainProperties = {
     url: "",
     propertiesDocumentHash: "",
     demandOwner: this.props.currentUser.id
@@ -120,7 +118,7 @@ export class OnboardDemand extends React.Component<OnboardDemandProps, {}> {
         address: this.props.currentUser.id,
       };
 
-      await Market.Demand.createDemand(
+      await Demand.createDemand(
         demandProps,
         demandOffchainProps,
         this.props.configuration)

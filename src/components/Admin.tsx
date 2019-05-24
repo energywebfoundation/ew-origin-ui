@@ -25,12 +25,12 @@ import {
 import { PageContent } from '../elements/PageContent/PageContent'
 import { OnboardDemand } from './OnboardDemand'
 import { User } from 'ew-user-registry-lib';
-import * as General from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
+import { Configuration } from 'ew-utils-general-lib';
 
 
 export interface AdminProps {
-  conf: General.Configuration.Entity,
+  conf: Configuration.Entity,
   currentUser: User,
   producingAssets: ProducingAsset.Entity[],
   baseUrl: string
