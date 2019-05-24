@@ -269,19 +269,12 @@ export class CertificateTable extends React.Component<CertificateTableProps, Cer
                 enrichedCertificateData.certificateOwner.organization,
                 EwAsset.ProducingAsset.Type[enrichedCertificateData.producingAsset.offChainProperties.assetType],
                 new Date(enrichedCertificateData.producingAsset.offChainProperties.operationalSince * 1000).toDateString(),
-                enrichedCertificateData.producingAsset.offChainProperties.gpsLongitude +
-                ' ' + enrichedCertificateData.producingAsset.offChainProperties.gpsLatitude,
-                enrichedCertificateData.producingAsset.offChainProperties.city +
-                ', ' + enrichedCertificateData.producingAsset.offChainProperties.country,
+                `${enrichedCertificateData.producingAsset.offChainProperties.gpsLongitude} ${enrichedCertificateData.producingAsset.offChainProperties.gpsLatitude}`,
+                `${enrichedCertificateData.producingAsset.offChainProperties.city}, ${enrichedCertificateData.producingAsset.offChainProperties.country}`,
                 EwAsset.ProducingAsset.Compliance[enrichedCertificateData.producingAsset.offChainProperties.complianceRegistry],
                 new Date(enrichedCertificateData.certificate.creationTime * 1000).toDateString(),
-
-                enrichedCertificateData.producingAsset.offChainProperties.capacityWh / 1000,
-
-
                 (enrichedCertificateData.certificate.powerInW / 1000).toFixed(3)
             ];
-
         });
 
         const TableHeader = [
