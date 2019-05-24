@@ -32,7 +32,8 @@
     "@types/underscore": "1.8.14",
     "@types/web3": "1.0.14",
     "ew-asset-registry-lib": "0.0.99",
-    "ew-market-lib": "0.3.1",
+    "ew-erc-test-contracts": "0.3.0",
+    "ew-market-lib": "energywebfoundation/ew-market-lib#2a40bd024e764c9c6fca6d8fc8241112303501e5",
     "ew-origin-lib": "0.0.99",
     "ew-user-registry-lib": "0.0.99",
     "ew-utils-general-lib": "0.3.1",
@@ -56,6 +57,7 @@
     "ts-loader": "5.4.5",
     "url-loader": "1.1.2",
     "web3": "1.0.0-beta.37",
-    "webpack": "4.30.0"
+    "webpack": "4.30.0",
+    "winston": "3.2.1"
   }
 }

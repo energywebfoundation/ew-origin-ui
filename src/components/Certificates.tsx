@@ -60,6 +60,7 @@ export class Certificates extends React.Component<CertificatesProps, Certificate
         this.CertificateTable = this.CertificateTable.bind(this);
         this.SoldCertificates = this.SoldCertificates.bind(this);
         this.ForSaleCertificates = this.ForSaleCertificates.bind(this);
+        this.ForSaleERC20Certificates = this.ForSaleERC20Certificates.bind(this);
         this.ClaimedCertificates = this.ClaimedCertificates.bind(this);
 
     }
@@ -104,7 +105,10 @@ export class Certificates extends React.Component<CertificatesProps, Certificate
 
     ForSaleCertificates() {
         return this.CertificateTable(SelectedState.ForSale);
+    }
 
+    ForSaleERC20Certificates() {
+        return this.CertificateTable(SelectedState.ForSaleERC20);
     }
 
     ClaimedCertificates() {
@@ -131,7 +135,8 @@ export class Certificates extends React.Component<CertificatesProps, Certificate
                         content: organizations
                     }
                 ]
-            }, {
+            },
+            {
                 key: 'for_sale',
                 label: 'For Sale',
                 component: this.ForSaleCertificates,
@@ -143,7 +148,21 @@ export class Certificates extends React.Component<CertificatesProps, Certificate
                         content: organizations
                     }
                 ]
-            }, {
+            },
+            {
+                key: 'for_sale_erc',
+                label: 'For Sale (ERC20)',
+                component: this.ForSaleERC20Certificates,
+                buttons: [
+                    {
+                        type: 'dropdown',
+                        label: 'All Organizations',
+                        face: ['filter', 'icon'],
+                        content: organizations
+                    }
+                ]
+            },
+            {
                 key: 'bought_sold',
                 label: 'Bought / Sold',
                 component: this.SoldCertificates,
