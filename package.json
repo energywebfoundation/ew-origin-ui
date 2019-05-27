@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --max-old-space-size=8192 node_modules/webpack-dev-server/bin/webpack-dev-server.js  --output-public-path=/dist/ -d --watch",
-    "build": "webpack --config webpack.config.js",
+    "build": "node --max-old-space-size=8192 ./node_modules/.bin/webpack --config webpack.config.js",
+    "build-full": "webpack --config webpack.config.js",
     "prettier": "prettier --write --config-precedence file-override './src/**/*'",
     "lint": "&& tslint 'src/**/*{.ts,.tsx}'",
     "lint-fix": "tslint --fix 'src/**/*{.ts,.tsx}'"
