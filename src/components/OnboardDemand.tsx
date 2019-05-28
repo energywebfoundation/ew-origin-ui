@@ -73,7 +73,7 @@ export class OnboardDemand extends React.Component<OnboardDemandProps, {}> {
 
         transformedInput.targetWhPerPeriod = transformedInput.targetWhPerPeriod * 1000;
 
-        const demandOffchainProps: Demand.DemandOffchainproperties = {
+        const demandOffchainProps: Demand.IDemandOffChainProperties = {
             timeframe: transformedInput.timeframe,
             pricePerCertifiedWh: creationDemandProperties.pricePerCertifiedWh,
             currency: creationDemandProperties.currency,
@@ -107,7 +107,7 @@ export class OnboardDemand extends React.Component<OnboardDemandProps, {}> {
             demandOffchainProps.locationRegion = transformedInput.locationRegion;
         }
 
-        const demandProps: Demand.DemandOnChainProperties = {
+        const demandProps: Demand.IDemandOnChainProperties = {
             url: '',
             propertiesDocumentHash: '',
             demandOwner: this.props.currentUser.id
