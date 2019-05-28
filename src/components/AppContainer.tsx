@@ -234,41 +234,40 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
             );
         }
 
+        const contractAddress = (this.props as any).match.params.contractAddress;
+
         return (
             <div className={`AppWrapper ${false ? 'Profile--open' : ''}`}>
                 <Header
                     currentUser={this.props.currentUser}
-                    baseUrl={(this.props as any).match.params.contractAddress}
+                    baseUrl={contractAddress}
                 />
                 <Switch>
                     <Route
-                        path={'/' + (this.props as any).match.params.contractAddress + '/assets/'}
+                        path={`/${contractAddress}/assets/`}
                         component={this.Asset}
                     />
                     <Route
-                        path={
-                            '/' + (this.props as any).match.params.contractAddress + '/certificates'
-                        }
+                        path={`/${contractAddress}/certificates/`}
                         component={this.CertificateTable}
                     />
                     <Route
-                        path={'/' + (this.props as any).match.params.contractAddress + '/admin/'}
+                        path={`/${contractAddress}/admin/`}
                         component={this.Admin}
                     />
-
                     <Route
-                        path={'/' + (this.props as any).match.params.contractAddress + '/demands'}
+                        path={`/${contractAddress}/demands/`}
                         component={this.DemandTable}
                     />
 
-                    {/* <Route path={'/' + (this.props as any).match.params.contractAddress + '/legal'} component={Legal} />
-                <Route path={'/' + (this.props as any).match.params.contractAddress + '/about'} component={About} /> */}
+                    {/* <Route path={`/${contractAddress}/legal/`'} component={Legal} />
+                    <Route path={`/${contractAddress}/about/`} component={About} /> */}
                     <Route
-                        path={'/' + (this.props as any).match.params.contractAddress}
+                        path={`/${contractAddress}`}
                         component={this.Asset}
                     />
                 </Switch>
-                {/* <Footer cooContractAddress={(this.props as any).match.params.contractAddress} /> */}
+                {/* <Footer cooContractAddress={contractAddress} /> */}
             </div>
         );
     }
