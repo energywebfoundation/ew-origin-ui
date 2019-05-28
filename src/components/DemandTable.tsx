@@ -110,7 +110,7 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
             {
                 label: 'Total',
                 key: 'total',
-                colspan: 12
+                colspan: 10
             },
             generateFooter('Energy Demand (kWh)', true)
         ];
