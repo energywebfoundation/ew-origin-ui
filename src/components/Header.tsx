@@ -59,7 +59,14 @@ export class Header extends React.Component<HeaderProps, {}> {
                                 Certificates
                             </NavLink>
                         </li>
-                        {/* <li><NavLink to={'/' + this.props.baseUrl + '/demands'} activeClassName='active'>Demands</NavLink></li> */}
+                        <li>
+                            <NavLink
+                                to={'/' + this.props.baseUrl + '/demands'}
+                                activeClassName="active"
+                            >
+                                Demands
+                            </NavLink>
+                        </li>
                         <li>
                             <NavLink
                                 to={'/' + this.props.baseUrl + '/admin'}
