@@ -118,21 +118,21 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
         const data = this.state.enrichedDemandData.map(
             (enrichedDemandData: IEnrichedDemandData) => {
                 const demand = enrichedDemandData.demand;
-                const overallDemand =
-                    Math.ceil(
-                        (demand.offChainProperties.endTime - demand.offChainProperties.startTime) /
-                            PeriodToSeconds[demand.offChainProperties.timeframe]
-                    ) *
-                    (demand.offChainProperties.targetWhPerPeriod / 1000);
-                totalDemand += overallDemand;
+                // const overallDemand =
+                //     Math.ceil(
+                //         (demand.offChainProperties.endTime - demand.offChainProperties.startTime) /
+                //             PeriodToSeconds[demand.offChainProperties.timeframe]
+                //     ) *
+                //     (demand.offChainProperties.targetWhPerPeriod / 1000);
+                // totalDemand += overallDemand;
 
                 return [
                     demand.id,
                     enrichedDemandData.buyer.organization,
                     enrichedDemandData.originator.organization,
-                    `${new Date(demand.startTime * 1000).toDateString()} - ${new Date(
-                        demand.offChainProperties.endTime * 1000
-                    ).toDateString()}`,
+                    // `${new Date(demand.startTime * 1000).toDateString()} - ${new Date(
+                    //     demand.offChainProperties.endTime * 1000
+                    // ).toDateString()}`,
                     `${demand.offChainProperties.locationCountry} ${
                         demand.offChainProperties.locationRegion
                     }`,
@@ -143,7 +143,7 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
                     demand.offChainProperties.consumingAsset,
                     demand.offChainProperties.minCO2Offset.toFixed(3),
                     (demand.offChainProperties.targetWhPerPeriod / 1000).toFixed(3),
-                    overallDemand.toFixed(3)
+                    // overallDemand.toFixed(3)
                 ];
             }
         );
@@ -152,7 +152,7 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
             generateHeader('#'),
             generateHeader('Buyer'),
             generateHeader('Originating Address'),
-            generateHeader('Start/End-Date'),
+            // generateHeader('Start/End-Date'),
             generateHeader('Country,<br/>Region'),
             generateHeader('Asset Type'),
             generateHeader('Compliance'),
@@ -161,7 +161,7 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
             generateHeader('Consumption Coupling with Asset'),
             generateHeader('Min CO2 Offset'),
             generateHeader('Coupling Cap per Timeframe (kWh)'),
-            generateHeader('Energy Demand (kWh)', defaultWidth, true, true)
+            // generateHeader('Energy Demand (kWh)', defaultWidth, true, true)
         ];
 
         return (
