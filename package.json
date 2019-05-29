@@ -48,7 +48,7 @@
     "ew-user-registry-lib": "energywebfoundation/ew-user-registry-lib#5a41bd1197b73aa70db2f9a33b5332c04c505c3d",
     "ew-utils-general-lib": "energywebfoundation/ew-utils-general-lib#3a0cb9e58c2f18776b59771d39981a44d6640d96",
     "ew-utils-testbackend": "energywebfoundation/ew-utils-testbackend#f4448692bebfe5019570533114557a943319ff2d",
-    "ew-market-lib": "energywebfoundation/ew-market-lib.git#88cdf4e3b055dd691cc47fdf2c46021e43d02e55",
+    "ew-market-lib": "energywebfoundation/ew-market-lib.git#4810633c131cb97a74c68bd75b6a1c2884e2eb7c",
     "ew-origin-lib": "energywebfoundation/ew-origin-lib.git#91e1786bd67394fe2ca2db8ef3af89a1bdb52c4c",
     "extract-text-webpack-plugin": "4.0.0-beta.0",
     "file-loader": "3.0.1",
