@@ -10,9 +10,11 @@ RUN apk add --no-cache python && \
     rm -r /root/.cache
 RUN apk add --no-cache git
 
-RUN mkdir -p /src
+COPY package.json /tmp/package.json
+RUN cd /tmp && rm -rf /tmp/node_modules/websocket && npm config set unsafe-perm true && npm install
+RUN mkdir -p /src && cp -a /tmp/node_modules /src
 
-COPY . /src
 WORKDIR /src
+COPY . /src
 
-RUN rm -rf node_modules && npm config set unsafe-perm true && npm install && npm run build
+RUN npm run build
