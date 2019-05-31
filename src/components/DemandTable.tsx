@@ -19,10 +19,11 @@ import * as React from 'react';
 import { Configuration, TimeFrame, Compliance, AssetType } from 'ew-utils-general-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
-import { Demand } from 'ew-market-lib';
+import { Demand, MarketLogic } from 'ew-market-lib';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
+import { showNotification, NotificationType } from '../utils/notifications';
 
 export interface IDemandTableProps {
     conf: Configuration.Entity;
@@ -60,6 +61,7 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
         };
 
         this.switchToOrganization = this.switchToOrganization.bind(this);
+        this.operationClicked = this.operationClicked.bind(this);
     }
 
     switchToOrganization(switchedToOrganization: boolean) {
@@ -86,18 +88,20 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
             };
 
 
-            if (typeof(demand.offChainProperties.productingAsset) !== 'undefined') {
-                result.producingAsset = this.props.producingAssets.find(
-                    (asset: ProducingAsset.Entity) =>
-                        asset.id === demand.offChainProperties.productingAsset.toString()
-                );
-            }
-
-            if (typeof(demand.offChainProperties.consumingAsset) !== 'undefined') {
-                result.consumingAsset = this.props.consumingAssets.find(
-                    (asset: ConsumingAsset.Entity) =>
-                        asset.id === demand.offChainProperties.consumingAsset.toString()
-                )
+            if (demand.offChainProperties) {
+                if (typeof(demand.offChainProperties.productingAsset) !== 'undefined') {
+                    result.producingAsset = this.props.producingAssets.find(
+                        (asset: ProducingAsset.Entity) =>
+                            asset.id === demand.offChainProperties.productingAsset.toString()
+                    );
+                }
+    
+                if (typeof(demand.offChainProperties.consumingAsset) !== 'undefined') {
+                    result.consumingAsset = this.props.consumingAssets.find(
+                        (asset: ConsumingAsset.Entity) =>
+                            asset.id === demand.offChainProperties.consumingAsset.toString()
+                    )
+                }
             }
 
             return result;
@@ -118,6 +122,30 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
         }
 
         return text || NO_VALUE_TEXT;
+    }
+
+    async operationClicked(key: string, id: number) {
+        switch (key) {
+            case 'Delete':
+                this.deleteDemand(id);
+                break;
+            default:
+        }
+    }
+
+    async deleteDemand(id: number) {
+        const market = this.props.conf.blockchainProperties.marketLogicInstance as MarketLogic;
+
+        try {
+            await market.deleteDemand(id, {
+                from: this.props.currentUser.id
+            } as any);
+
+            showNotification('Demand deleted', NotificationType.Success);
+        } catch (error) {
+            console.error(error);
+            showNotification(`Can't delete demand`, NotificationType.Error);
+        }
     }
 
     render() {
@@ -167,6 +195,10 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
             generateHeader('Coupling Cap per Timeframe (kWh)')
         ];
 
+        const operations = [
+            'Delete'
+        ];
+
         return (
             <div className="ForSaleWrapper">
                 <Table
@@ -176,6 +208,8 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
                     actions={true}
                     data={data}
                     actionWidth={55.39}
+                    operations={operations}
+                    operationClicked={this.operationClicked}
                 />
             </div>
         );

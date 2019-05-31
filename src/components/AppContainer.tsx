@@ -83,7 +83,16 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
             currentBlockNumber
         );
 
-        demandContractEventHandler.onEvent('createdNewDemand', async (event: any) =>
+        demandContractEventHandler.onEvent('createdNewDemand', async (event: any) =>{
+            this.props.actions.demandCreatedOrUpdated(
+                await (new Demand.Entity(
+                    event.returnValues._demandId,
+                    this.props.configuration).sync()
+                )
+            )
+        });
+
+        demandContractEventHandler.onEvent('deletedDemand', async (event: any) =>
             this.props.actions.demandCreatedOrUpdated(
                 await (new Demand.Entity(
                     event.returnValues._demandId,
@@ -175,9 +184,9 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
             this.props.actions.consumingAssetCreatedOrUpdated(c)
         );
 
-        (await Demand.getAllDemands(conf)).forEach((d: Demand.Entity) =>
+        (await Demand.getAllDemands(conf)).forEach((d: Demand.Entity) => {
             this.props.actions.demandCreatedOrUpdated(d)
-        );
+        });
 
         (await Certificate.getActiveCertificates(conf)).forEach((certificate: Certificate.Entity) =>
             this.props.actions.certificateCreatedOrUpdated(certificate)
