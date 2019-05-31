@@ -23,13 +23,15 @@ export default function reducer(state = defaultState, action) {
     if (action.type === Actions.demandCreatedOrUpdated) {
         const demandIndex = state.findIndex((d: Demand.Entity) => d.id === action.demand.id);
 
-        const deleted = !(action.demand as Demand.Entity).demandOwner;
+        return demandIndex === -1 ? [...state, action.demand] : [...state.slice(0, demandIndex), action.demand, ...state.slice(demandIndex + 1)];
+    } else if (action.type === Actions.demandDeleted) {
+        const demandIndex = state.findIndex((d: Demand.Entity) => d.id === action.demand.id);
 
-        if (deleted) {
-            return demandIndex === -1 ? state : [...state.slice(0, demandIndex), ...state.slice(demandIndex + 1)];
+        if (demandIndex === -1) {
+            return state;
         }
 
-        return demandIndex === -1 ? [...state, action.demand] : [...state.slice(0, demandIndex), action.demand, ...state.slice(demandIndex + 1)];
+        return [...state.slice(0, demandIndex), ...state.slice(demandIndex + 1)];
     } else {
         return state;
     }
