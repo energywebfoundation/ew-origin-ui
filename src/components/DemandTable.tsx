@@ -19,11 +19,12 @@ import * as React from 'react';
 import { Configuration, TimeFrame, Compliance, AssetType } from 'ew-utils-general-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
-import { Demand, MarketLogic } from 'ew-market-lib';
+import { Demand } from 'ew-market-lib';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
 import { showNotification, NotificationType } from '../utils/notifications';
+import { deleteDemand } from 'ew-market-lib/dist/js/src/blockchain-facade/Demand';
 
 export interface IDemandTableProps {
     conf: Configuration.Entity;
@@ -134,12 +135,11 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
     }
 
     async deleteDemand(id: number) {
-        const market = this.props.conf.blockchainProperties.marketLogicInstance as MarketLogic;
-
         try {
-            await market.deleteDemand(id, {
-                from: this.props.currentUser.id
-            } as any);
+            this.props.conf.blockchainProperties.activeUser = {
+                address: this.props.currentUser.id
+            };
+            await deleteDemand(id, this.props.conf);
 
             showNotification('Demand deleted', NotificationType.Success);
         } catch (error) {
