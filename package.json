@@ -39,7 +39,7 @@
     "@types/redux-actions": "2.6.0",
     "@types/underscore": "1.8.14",
     "@types/web3": "1.0.14",
-    "ew-asset-registry-lib": "energywebfoundation/ew-asset-registry-lib#feature/add-facility-name",
+    "ew-asset-registry-lib": "energywebfoundation/ew-asset-registry-lib#7acd085",
     "ew-erc-test-contracts": "0.3.0",
     "ew-market-lib": "energywebfoundation/ew-market-lib#3907db6",
     "ew-origin-lib": "energywebfoundation/ew-origin-lib#e4f04db",
