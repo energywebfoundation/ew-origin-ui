@@ -119,7 +119,7 @@ export class ConsumingAssetTable extends React.Component<ConsumingAssetTableProp
         const generateFooter = TableUtils.generateFooter;
 
         const TableHeader = [
-            generateHeader('#', 80),
+            generateHeader('#', 60),
             generateHeader('Owner'),
             generateHeader('Facility Name'),
             generateHeader('Town, Country'),

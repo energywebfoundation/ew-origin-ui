@@ -279,7 +279,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             {
                 label: 'Total',
                 key: 'total',
-                colspan: this.props.selectedState === SelectedState.ForSaleERC20 ? 8 : 7
+                colspan: 7
             },
             generateFooter('Certified Energy (kWh)', true)
         ];
@@ -338,7 +338,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                         EnrichedCertificateData.producingAsset.offChainProperties.complianceRegistry
                     ],
                     EnrichedCertificateData.certificateOwner.organization,
-                    certificate.onCHainDirectPurchasePrice,
                     new Date(
                         EnrichedCertificateData.certificate.creationTime * 1000
                     ).toDateString(),
@@ -348,7 +347,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
         );
 
         let TableHeader = [
-            generateHeader('#', 80),
+            generateHeader('#', 60),
             generateHeader('Asset Type'),
             generateHeader('Commissioning Date'),
             generateHeader('Town, Country'),

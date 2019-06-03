@@ -121,7 +121,7 @@ export class ProducingAssetTable extends React.Component<ProducingAssetTableProp
         const generateFooter: any = TableUtils.generateFooter;
 
         const TableHeader: ITableHeaderData[] = [
-            generateHeader('#', 80),
+            generateHeader('#', 60),
             generateHeader('Owner'),
             generateHeader('Facility Name'),
             generateHeader('Town, Country'),
