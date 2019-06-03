@@ -358,10 +358,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             generateHeader('Certified Energy (kWh)', defaultWidth, true, true)
         ];
 
-        if (this.props.selectedState === SelectedState.ForSaleERC20) {
-            TableHeader = [...TableHeader.slice(0, 7), generateHeader('Price'), ...TableHeader.slice(7, TableHeader.length)]
-        }
-
         const operations = [
             'Show Certificate Creation Tx',
             'Show Initial Logging Transaction',
