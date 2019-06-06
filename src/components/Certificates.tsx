@@ -120,8 +120,6 @@ export class Certificates extends React.Component<ICertificatesProps, ICertifica
     }
 
     ForDemandCertificates(demandId: number) {
-        console.log('ForDemandCertificates');
-
         return this.CertificateTable(SelectedState.ForDemand, demandId);
     }
 

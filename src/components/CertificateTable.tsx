@@ -311,14 +311,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                     EnrichedCertificateData.certificateOwner.id !== this.props.currentUser.id;
                 const forDemand = this.state.matchedCertificates.find(cert => cert.id === EnrichedCertificateData.certificate.id) !== undefined;
 
-                // if (this.props.selectedState === SelectedState.ForDemand) {
-                //     console.log({
-                //         demand: this.props.demand,
-                //         certs: this.props.certificates,
-                //         matchedCertificates: this.state.matchedCertificates
-                //      });
-                // }
-
                 if (
                     this.props.switchedToOrganization &&
                     EnrichedCertificateData.certificate.owner !== this.props.currentUser.id
