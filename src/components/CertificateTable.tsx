@@ -28,6 +28,7 @@ import { MatcherLogic } from 'ew-market-matcher';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
+import { showNotification, NotificationType } from '../utils/notifications';
 
 export interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -54,11 +55,22 @@ export interface ICertificatesState {
 }
 
 export enum SelectedState {
+    Inbox,
     Claimed,
-    Sold,
     ForSale,
     ForSaleERC20,
     ForDemand
+}
+
+export enum OPERATIONS {
+    PUBLISH_FOR_SALE = 'Publish For Sale',
+    RETURN_TO_INBOX = 'Return to Inbox',
+    CLAIM = 'Claim',
+    BUY = 'Buy',
+    SHOW_CLAIMING_TX = 'Show Claiming Transaction',
+    SHOW_CREATION_TX = 'Show Certificate Creation Transaction',
+    SHOW_LOGGING_TX = 'Show Initial Logging Transaction',
+    SHOW_DETAILS = 'Show Certificate Details'
 }
 
 export class CertificateTable extends React.Component<ICertificateTableProps, ICertificatesState> {
@@ -67,11 +79,12 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
 
         this.state = {
             EnrichedCertificateData: [],
-            selectedState: SelectedState.Claimed,
+            selectedState: SelectedState.Inbox,
             detailViewForCertificateId: null,
             matchedCertificates: []
         };
 
+        this.publishForSale = this.publishForSale.bind(this);
         this.claimCertificate = this.claimCertificate.bind(this);
         this.operationClicked = this.operationClicked.bind(this);
         this.showTxClaimed = this.showTxClaimed.bind(this);
@@ -92,7 +105,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
     }
 
     async enrichData(props: ICertificateTableProps) {
-        const promieses = props.certificates.map(async (certificate: Certificate.Entity) => ({
+        const promises = props.certificates.map(async (certificate: Certificate.Entity) => ({
             certificate,
             producingAsset: this.props.producingAssets.find(
                 (asset: ProducingAsset.Entity) => asset.id === certificate.assetId.toString()
@@ -100,7 +113,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             certificateOwner: await new User(certificate.owner, props.conf as any).sync()
         }));
 
-        Promise.all(promieses).then(EnrichedCertificateData => {
+        Promise.all(promises).then(EnrichedCertificateData => {
             this.setState({
                 EnrichedCertificateData
             });
@@ -117,6 +130,11 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
         const certificate: Certificate.Entity = this.props.certificates.find(
             (cert: Certificate.Entity) => cert.id === certificateId.toString()
         );
+
+        if (certificate.owner == this.props.currentUser.id) {
+            showNotification(`You can't buy your own certificates.`, NotificationType.Error);
+            return;
+        }
 
         if (certificate && this.props.currentUser) {
             const erc20TestToken = new Erc20TestToken(
@@ -136,7 +154,51 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                 address: this.props.currentUser.id
             };
             await certificate.buyCertificate();
+            
+            showNotification(`Certificate ${certificate.id} has been bought.`, NotificationType.Success);
+        } else {
+            showNotification(`Unable to buy certificate ${certificate.id}.`, NotificationType.Error)
         }
+    }
+
+    async publishForSale(certificateId: number) {
+        const certificate: Certificate.Entity = this.props.certificates.find(
+            (cert: Certificate.Entity) => cert.id === certificateId.toString()
+        );
+
+        if (certificate.forSale) {
+            showNotification(`Certificate ${certificate.id} has already been published for sale.`, NotificationType.Error);
+            return;
+        }
+
+        certificate.configuration.blockchainProperties.activeUser = {
+            address: this.props.currentUser.id
+        };
+
+        await certificate.publishForSale();
+        showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
+    }
+
+    async returnToInbox(certificateId: number) {
+        const certificate: Certificate.Entity = this.props.certificates.find(
+            (cert: Certificate.Entity) => cert.id === certificateId.toString()
+        );
+
+        if (!this.props.currentUser || this.props.currentUser.id !== certificate.owner) {
+            showNotification(`You are not the owner of certificate ${certificate.id}.`, NotificationType.Error);
+            return;
+        }
+        if (!certificate.forSale) {
+            showNotification(`Certificate ${certificate.id} is already in Inbox.`, NotificationType.Error);
+            return;
+        }
+
+        certificate.configuration.blockchainProperties.activeUser = {
+            address: this.props.currentUser.id
+        };
+
+        await certificate.unpublishForSale();
+        showNotification(`Certificate ${certificate.id} has been returned to Inbox.`, NotificationType.Success);
     }
 
     async claimCertificate(certificateId: number) {
@@ -153,6 +215,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             };
 
             await certificate.retireCertificate();
+            showNotification(`Certificate ${certificate.id} has been claimed.`, NotificationType.Success);
         }
     }
 
@@ -248,22 +311,28 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
 
     async operationClicked(key: string, id: number) {
         switch (key) {
-            case 'Claim':
+            case OPERATIONS.PUBLISH_FOR_SALE:
+                this.publishForSale(id);
+                break;
+            case OPERATIONS.RETURN_TO_INBOX:
+                this.returnToInbox(id);
+                break;
+            case OPERATIONS.CLAIM:
                 this.claimCertificate(id);
                 break;
-            case 'Buy':
+            case OPERATIONS.BUY:
                 await this.buyCertificate(id);
                 break;
-            case 'Show Claiming Tx':
+            case OPERATIONS.SHOW_CLAIMING_TX:
                 this.showTxClaimed(id);
                 break;
-            case 'Show Certificate Creation Tx':
+            case OPERATIONS.SHOW_CREATION_TX:
                 this.showCertCreated(id);
                 break;
-            case 'Show Initial Logging Transaction':
+            case OPERATIONS.SHOW_LOGGING_TX:
                 // this.showInitialLoggingTx(id);
                 break;
-            case 'Show Certificate Details':
+            case OPERATIONS.SHOW_DETAILS:
                 this.showCertificateDetails(id);
                 break;
             default:
@@ -296,11 +365,9 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
 
         const filteredIEnrichedCertificateData = this.state.EnrichedCertificateData.filter(
             (EnrichedCertificateData: IEnrichedCertificateData) => {
-                const claimed =
-                    EnrichedCertificateData.certificate.status === Certificate.Status.Retired;
-                const forSale =
-                    EnrichedCertificateData.certificate.owner ===
-                    EnrichedCertificateData.producingAsset.owner.address;
+                const ownerOf = this.props.currentUser && this.props.currentUser.id === EnrichedCertificateData.certificate.owner;
+                const claimed = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Retired;
+                const forSale = EnrichedCertificateData.certificate.forSale;
                 const forSaleERC20 =
                     EnrichedCertificateData.certificate.acceptedToken &&
                     this.props.conf.blockchainProperties.web3.utils
@@ -319,9 +386,9 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                 }
 
                 return (
+                    (ownerOf && !claimed && !forSale && this.props.selectedState === SelectedState.Inbox) ||
                     (claimed && this.props.selectedState === SelectedState.Claimed) ||
                     (!claimed && forSale && this.props.selectedState === SelectedState.ForSale) ||
-                    (!claimed && !forSale && this.props.selectedState === SelectedState.Sold) ||
                     (!claimed && forSaleERC20 && this.props.selectedState === SelectedState.ForSaleERC20) ||
                     (!claimed && forDemand && this.props.selectedState === SelectedState.ForDemand)
                 );
@@ -368,20 +435,37 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             generateHeader('Certified Energy (kWh)', defaultWidth, true, true)
         ];
 
-        const operations = [
-            'Show Certificate Creation Tx',
-            'Show Initial Logging Transaction',
-            'Show Certificate Details'
-        ].concat(
-            this.props.selectedState === SelectedState.Sold
-                ? ['Claim']
-                : this.props.selectedState === SelectedState.ForSaleERC20
-                ? ['Buy']
-                : []
-        );
-        if (this.props.selectedState === SelectedState.Claimed) {
-            operations.concat(['Show Claiming Tx']);
+        const operations = [];
+
+        switch (this.props.selectedState) {
+            case SelectedState.Inbox:
+                operations.push(
+                    OPERATIONS.CLAIM,
+                    OPERATIONS.PUBLISH_FOR_SALE
+                );
+                break;
+            case SelectedState.ForSale:
+                operations.push(
+                    OPERATIONS.BUY,
+                    OPERATIONS.RETURN_TO_INBOX
+                );
+                break;
+            case SelectedState.ForSaleERC20:
+                operations.push(
+                    OPERATIONS.BUY,
+                    OPERATIONS.RETURN_TO_INBOX
+                );
+                break;
+            case SelectedState.Claimed:
+                operations.push(OPERATIONS.SHOW_CLAIMING_TX);
+                break;
         }
+
+        operations.push(
+            OPERATIONS.SHOW_CREATION_TX,
+            OPERATIONS.SHOW_LOGGING_TX,
+            OPERATIONS.SHOW_DETAILS
+        );
 
         return (
             <div className="ForSaleWrapper">
