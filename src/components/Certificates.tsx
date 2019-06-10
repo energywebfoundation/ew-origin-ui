@@ -251,7 +251,7 @@ export class Certificates extends React.Component<ICertificatesProps, ICertifica
                 />
 
                 <Route
-                    exact
+                    exact={true}
                     path={`/${this.props.baseUrl}/certificates`}
                     render={props => (
                         <Redirect
@@ -265,7 +265,7 @@ export class Certificates extends React.Component<ICertificatesProps, ICertifica
                 />
 
                 <Route
-                    exact
+                    exact={true}
                     path={`/${this.props.baseUrl}/`}
                     render={props => (
                         <Redirect
