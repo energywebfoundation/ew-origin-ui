@@ -64,9 +64,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     async componentDidUpdate(prevProps) {
         if (this.props.certificate && this.props.certificate !== prevProps) {
             const logs = await this.props.certificate.getAllCertificateEvents();
-            const initialTransfer = logs.find((log: any) => {
-                return log.event === 'Transfer'
-            });
+            const initialTransfer = logs.find((log: any) => log.event === 'Transfer');
 
             const timestamp = (await this.props.conf.blockchainProperties.web3.eth.getBlock(
                 initialTransfer.blockNumber
@@ -196,7 +194,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                                 title={this.state.currency}
                                 onSelect={(eventKey) => this.setState({ currency: eventKey })}
                             >
-                                {currencies.map(currency => <MenuItem eventKey={currency}>{currency}</MenuItem>)}
+                                {currencies.map(currency => <MenuItem key={currency} eventKey={currency}>{currency}</MenuItem>)}
                             </DropdownButton>
 
                             {this.state.currency === erc20Currency &&
