@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Modal, Button, Dropdown, DropdownButton, MenuItem } from 'react-bootstrap';
 import './Modal.scss';
 import '../PageButton/PageButton.scss';
-import Web3 from 'Web3';
 import moment from 'moment';
 
 import { Currency, Configuration } from 'ew-utils-general-lib';
@@ -125,7 +124,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                     erc20TokenAddress: event.target.value,
                     validation: {
                         price: this.state.validation.price,
-                        erc20TokenAddress: Web3.utils.isAddress(event.target.value)
+                        erc20TokenAddress: this.props.conf.blockchainProperties.web3.utils.isAddress(event.target.value)
                     }
                 });
         }
