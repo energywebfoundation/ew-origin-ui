@@ -42,7 +42,7 @@
     "ew-asset-registry-lib": "1.0.3-alpha.2",
     "ew-erc-test-contracts": "0.3.0",
     "ew-market-lib": "1.0.2-alpha.1",
-    "ew-origin-lib": "energywebfoundation/ew-origin-lib#8361529c298b40897c40610f140dbfe6e316cbda",
+    "ew-origin-lib": "energywebfoundation/ew-origin-lib#4745dd2da64a31039f69cf19d8151a73ddf1a69f",
     "ew-user-registry-lib": "1.0.3-alpha.2",
     "ew-utils-general-lib": "1.0.2-alpha.2",
     "ew-market-matcher": "1.0.1-alpha.1",

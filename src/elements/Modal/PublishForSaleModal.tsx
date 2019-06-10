@@ -3,9 +3,11 @@ import { Modal, Button, Dropdown, DropdownButton, MenuItem } from 'react-bootstr
 import './Modal.scss';
 import '../PageButton/PageButton.scss';
 import Web3 from 'Web3';
+import moment from 'moment';
 
-import { Currency } from 'ew-utils-general-lib';
+import { Currency, Configuration } from 'ew-utils-general-lib';
 import { Certificate } from 'ew-origin-lib';
+import { ProducingAsset } from 'ew-asset-registry-lib';
 
 import { showNotification, NotificationType } from '../../utils/notifications';
 
@@ -15,7 +17,9 @@ interface IValidation {
 }
 
 interface IPublishForSaleModalProps {
+    conf: Configuration.Entity;
     certificate: Certificate.Entity;
+    producingAsset: ProducingAsset.Entity;
     showModal: boolean;
 }
 
@@ -25,6 +29,7 @@ interface IPublishForSaleModalState {
     currency: string;
     erc20TokenAddress: string;
     validation: IValidation;
+    certCreationDate: string;
 }
 
 class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPublishForSaleModalState> {
@@ -45,14 +50,32 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
             validation: {
                 price: true,
                 erc20TokenAddress: false
-            }
+            },
+            certCreationDate: 'Loading...'
         };
     }
 
     componentWillReceiveProps(newProps: IPublishForSaleModalProps) {
         this.setState({
-            show: newProps.showModal
+            show: newProps.showModal,
         });
+    }
+
+    async componentDidUpdate(prevProps) {
+        if (this.props.certificate && this.props.certificate !== prevProps) {
+            const logs = await this.props.certificate.getAllCertificateEvents();
+            const initialTransfer = logs.find((log: any) => {
+                return log.event === 'Transfer'
+            });
+
+            const timestamp = (await this.props.conf.blockchainProperties.web3.eth.getBlock(
+                initialTransfer.blockNumber
+            )).timestamp;
+
+            this.setState({
+                certCreationDate: moment.unix(timestamp).toString()
+            });
+        }
     }
 
     async publishForSale() {
@@ -126,6 +149,8 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
 
     render() {
         const certificateId = this.props.certificate ? this.props.certificate.id : '';
+        const facilityName = this.props.producingAsset ? this.props.producingAsset.offChainProperties.facilityName : '';
+        const certificatePowerkWh = this.props.certificate ? this.props.certificate.powerInW / 1000 : '';
 
         const erc20Currency = 'ERC20 Token';
         let currencies = Object.keys(Currency);
@@ -135,9 +160,26 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         return (
             <Modal show={this.state.show} onHide={this.handleClose} animation={false} backdrop={true} backdropClassName="modal-backdrop">
                 <Modal.Header>
-                    <Modal.Title>Publish certificate #2 for sale</Modal.Title>
+                    <Modal.Title>{`Publish certificate #${certificateId} for sale`}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="container">
+                    <div className="row">
+                        <div className="col">Facility</div>
+                        <div className="col">{facilityName}</div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col">Date</div>
+                        <div className="col">{this.state.certCreationDate}</div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col">kWh</div>
+                        <div className="col">{certificatePowerkWh}</div>
+                    </div>
+
+                    <hr />
+
                     <div className="row price-input">
                         <div className="col vertical-align">Price</div>
                         <div className="col">

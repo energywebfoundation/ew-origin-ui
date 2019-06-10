@@ -508,7 +508,18 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                     operations={operations}
                 />
 
-                <PublishForSaleModal certificate={this.state.sellModalForCertificate} showModal={this.state.showSellModal}/>
+                <PublishForSaleModal
+                    conf={this.props.conf}
+                    certificate={this.state.sellModalForCertificate}
+                    producingAsset={
+                        this.state.sellModalForCertificate ?
+                            this.props.producingAssets.find(
+                                (asset: ProducingAsset.Entity) => asset.id === this.state.sellModalForCertificate.assetId.toString()
+                            ) 
+                            : null
+                    }
+                    showModal={this.state.showSellModal}
+                />
             </div>
         );
     }

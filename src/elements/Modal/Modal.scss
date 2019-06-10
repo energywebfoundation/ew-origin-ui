@@ -9,15 +9,23 @@
         border: 0px;
     }
 
+    &-body {
+        font-weight: 500;
+        font-family: Rubik;
+        font-size: 12px;
+    }
+
     &-dialog {
         background-color: #333333;
         border-radius: 50px;
         border: 0px;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     }
-    
-    &-title {
 
+    &-title {
+        font-weight: 300;
+        font-size: 28px;
+        color: #979797
     }
 }
 
