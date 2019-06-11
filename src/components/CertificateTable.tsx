@@ -46,6 +46,7 @@ export interface IEnrichedCertificateData {
     certificate: Certificate.Entity;
     certificateOwner: User;
     producingAsset: ProducingAsset.Entity;
+    acceptedToken: string;
 }
 
 export interface ICertificatesState {
@@ -100,6 +101,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
         this.showTxClaimed = this.showTxClaimed.bind(this);
         this.showCertCreated = this.showCertCreated.bind(this);
         this.showCertificateDetails = this.showCertificateDetails.bind(this);
+        this.getTokenSymbol = this.getTokenSymbol.bind(this);
     }
 
     async componentDidMount() {
@@ -120,7 +122,8 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             producingAsset: this.props.producingAssets.find(
                 (asset: ProducingAsset.Entity) => asset.id === certificate.assetId.toString()
             ),
-            certificateOwner: await new User(certificate.owner, props.conf as any).sync()
+            certificateOwner: await new User(certificate.owner, props.conf as any).sync(),
+            acceptedToken: await this.getTokenSymbol(certificate)
         }));
 
         Promise.all(promises).then(EnrichedCertificateData => {
@@ -134,6 +137,21 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
         const matchedCertificates: Certificate.Entity[] = await MatcherLogic.findMatchingCertificatesForDemand(demand, this.props.conf, this.props.certificates);
 
         this.setState({ matchedCertificates });
+    }
+
+    async getTokenSymbol(certificate) {
+        if (certificate.acceptedToken 
+            && certificate.acceptedToken !== '0x0000000000000000000000000000000000000000') 
+        {
+            const token = new Erc20TestToken(
+                this.props.conf.blockchainProperties.web3,
+                (certificate.acceptedToken as any) as string
+            );
+            const symbol = await token.web3Contract.methods.symbol().call();
+            console.log({token,symbol})
+            return symbol;
+        }
+        return '';
     }
 
     async buyCertificate(certificateId: number) {
@@ -421,7 +439,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
 
                 if (this.state.shouldShowPrice) {
                     certificateDataToShow.splice(7, 0, EnrichedCertificateData.certificate.onChainDirectPurchasePrice);
-                    certificateDataToShow.splice(8, 0, `ERC20 token ${EnrichedCertificateData.certificate.acceptedToken}`);
+                    certificateDataToShow.splice(8, 0, EnrichedCertificateData.acceptedToken);
                 }
 
                 return certificateDataToShow;
