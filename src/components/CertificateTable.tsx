@@ -62,7 +62,6 @@ export enum SelectedState {
     Inbox,
     Claimed,
     ForSale,
-    ForSaleERC20,
     ForDemand
 }
 
@@ -88,7 +87,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             matchedCertificates: [],
             shouldShowPrice: [
                 SelectedState.ForSale,
-                SelectedState.ForSaleERC20,
                 SelectedState.ForDemand,
                 SelectedState.Claimed
             ].includes(props.selectedState),
@@ -377,12 +375,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                 const ownerOf = this.props.currentUser && this.props.currentUser.id === EnrichedCertificateData.certificate.owner;
                 const claimed = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Retired;
                 const forSale = EnrichedCertificateData.certificate.forSale;
-                const isErc20 =
-                    EnrichedCertificateData.certificate.acceptedToken &&
-                    this.props.conf.blockchainProperties.web3.utils
-                        .toBN(EnrichedCertificateData.certificate.acceptedToken)
-                        .toString() !== '0' &&
-                    EnrichedCertificateData.certificate.onChainDirectPurchasePrice > 0;
                 const forDemand = this.state.matchedCertificates.find(cert => cert.id === EnrichedCertificateData.certificate.id) !== undefined;
 
                 if (
@@ -395,8 +387,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                 return (
                     (ownerOf && !claimed && !forSale && this.props.selectedState === SelectedState.Inbox) ||
                     (claimed && this.props.selectedState === SelectedState.Claimed) ||
-                    (!claimed && forSale && !isErc20 && this.props.selectedState === SelectedState.ForSale) ||
-                    (!claimed && forSale && isErc20 && this.props.selectedState === SelectedState.ForSaleERC20) ||
+                    (!claimed && forSale && this.props.selectedState === SelectedState.ForSale) ||
                     (!claimed && forSale && forDemand && this.props.selectedState === SelectedState.ForDemand)
                 );
             }
@@ -473,12 +464,6 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                 );
                 break;
             case SelectedState.ForSale:
-                operations.push(
-                    OPERATIONS.BUY,
-                    OPERATIONS.RETURN_TO_INBOX
-                );
-                break;
-            case SelectedState.ForSaleERC20:
                 operations.push(
                     OPERATIONS.BUY,
                     OPERATIONS.RETURN_TO_INBOX
