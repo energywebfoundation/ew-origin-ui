@@ -143,7 +143,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
             (cert: Certificate.Entity) => cert.id === certificateId.toString()
         );
 
-        if (certificate.owner == this.props.currentUser.id) {
+        if (certificate.owner === this.props.currentUser.id) {
             showNotification(`You can't buy your own certificates.`, NotificationType.Error);
 
             return;

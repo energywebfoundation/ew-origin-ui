@@ -31,6 +31,9 @@ interface IPublishForSaleModalState {
     certCreationDate: string;
 }
 
+
+const ERC20CURRENCY = 'ERC20 Token';
+
 class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPublishForSaleModalState> {
     constructor(props, context) {
         super(props, context);
@@ -76,7 +79,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     async publishForSale() {
-        const { validation, price, erc20TokenAddress } = this.state;
+        const { validation, price, erc20TokenAddress, currency } = this.state;
         const { certificate } = this.props;
 
         if (this.isFormValid()) {
@@ -87,15 +90,17 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 return;
             }
 
-            if (price !== certificate.onChainDirectPurchasePrice) {
-                await certificate.setOnChainDirectPurchasePrice(price);
-            }
-
-            if (
-                erc20TokenAddress !== ''
-                && erc20TokenAddress !== ((certificate.acceptedToken as any) as string)
-            ) {
-                await certificate.setTradableToken(erc20TokenAddress);
+            if (currency === ERC20CURRENCY) {
+                if (price !== certificate.onChainDirectPurchasePrice) {
+                    await certificate.setOnChainDirectPurchasePrice(price);
+                }
+    
+                if (
+                    erc20TokenAddress !== ''
+                    && erc20TokenAddress !== ((certificate.acceptedToken as any) as string)
+                ) {
+                    await certificate.setTradableToken(erc20TokenAddress);
+                }
             }
 
             await certificate.publishForSale();
@@ -131,7 +136,11 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     isFormValid() {
-        const { validation } = this.state;
+        const { validation, currency } = this.state;
+
+        if (currency !== ERC20CURRENCY) {
+            return validation.price;
+        }
 
         return Object.keys(validation).every(property => validation[property] === true);
     }
@@ -149,10 +158,9 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         const facilityName = this.props.producingAsset ? this.props.producingAsset.offChainProperties.facilityName : '';
         const certificatePowerkWh = this.props.certificate ? this.props.certificate.powerInW / 1000 : '';
 
-        const erc20Currency = 'ERC20 Token';
         let currencies = Object.keys(Currency);
         currencies = currencies.splice(Math.ceil(currencies.length / 2), currencies.length - 1);
-        currencies.push(erc20Currency);
+        currencies.push(ERC20CURRENCY);
 
         return (
             <Modal show={this.state.show} onHide={this.handleClose} animation={false} backdrop={true} backdropClassName="modal-backdrop">
@@ -196,7 +204,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                                 {currencies.map(currency => <MenuItem key={currency} eventKey={currency}>{currency}</MenuItem>)}
                             </DropdownButton>
 
-                            {this.state.currency === erc20Currency &&
+                            {this.state.currency === ERC20CURRENCY &&
                                 <input id="tokenAddressInput" className="modal-input" type="text" placeholder="<ERC20 Token Address>" value={this.state.erc20TokenAddress} onChange={(e) => this.validateInputs(e)} />
                             }
                         </div>
@@ -204,7 +212,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
 
                     <div className="text-danger">
                         {!this.state.validation.price && <div>Price is invalid</div>}
-                        {this.state.currency === erc20Currency && !this.state.validation.erc20TokenAddress && <div>Token address is invalid</div>}
+                        {this.state.currency === ERC20CURRENCY && !this.state.validation.erc20TokenAddress && <div>Token address is invalid</div>}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
