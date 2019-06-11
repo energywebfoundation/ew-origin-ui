@@ -174,8 +174,11 @@ export class DemandTable extends React.Component<IDemandTableProps, {}> {
                 return [
                     demand.id,
                     enrichedDemandData.demandOwner.organization,
-                    (moment(demand.offChainProperties.startTime, 'x')).format('DD MMM YY') + ' - ' +
-                        (moment(demand.offChainProperties.endTime, 'x')).format('DD MMM YY'),
+                    `
+                        ${moment(demand.offChainProperties.startTime, 'x').format('DD MMM YY HH:mm')}
+                         - 
+                        ${moment(demand.offChainProperties.endTime, 'x').format('DD MMM YY HH:mm')}
+                    `,
                     this.getCountryRegionText(demand),
                     typeof(demand.offChainProperties.assettype) !== 'undefined' ? AssetType[demand.offChainProperties.assettype] : NO_VALUE_TEXT,
                     typeof(demand.offChainProperties.registryCompliance) !== 'undefined' ? Compliance[demand.offChainProperties.registryCompliance] : NO_VALUE_TEXT,

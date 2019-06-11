@@ -112,6 +112,10 @@ export class Table extends React.Component<IProps, any> {
             }
         }
 
+        for (const key in ret) {
+            ret[key] = Math.round(ret[key] * 1000) / 1000;
+        }
+
         return ret;
     };
 
