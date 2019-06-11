@@ -140,17 +140,17 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
     }
 
     async getTokenSymbol(certificate) {
-        if (certificate.acceptedToken 
-            && certificate.acceptedToken !== '0x0000000000000000000000000000000000000000') 
-        {
+        if (certificate.acceptedToken
+            && certificate.acceptedToken !== '0x0000000000000000000000000000000000000000') {
             const token = new Erc20TestToken(
                 this.props.conf.blockchainProperties.web3,
                 (certificate.acceptedToken as any) as string
             );
             const symbol = await token.web3Contract.methods.symbol().call();
-            console.log({token,symbol})
+
             return symbol;
         }
+
         return '';
     }
 
@@ -518,7 +518,7 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
                         this.state.sellModalForCertificate ?
                             this.props.producingAssets.find(
                                 (asset: ProducingAsset.Entity) => asset.id === this.state.sellModalForCertificate.assetId.toString()
-                            ) 
+                            )
                             : null
                     }
                     showModal={this.state.showSellModal}
