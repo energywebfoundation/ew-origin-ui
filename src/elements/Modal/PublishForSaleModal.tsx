@@ -89,17 +89,15 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 return;
             }
 
-            if (currency !== ERC20CURRENCY) {
-                showNotification(`We only support ERC20 currency for now.`, NotificationType.Error);
-
-                return;
+            if (currency === ERC20CURRENCY) {
+                await certificate.publishForSale(price, erc20TokenAddress);
+            } else {
+                await certificate.publishForSale(0, '0x0000000000000000000000000000000000000000');
             }
 
-            await certificate.publishForSale(price, erc20TokenAddress);
             showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
             this.handleClose();
         }
-
     }
 
     validateInputs(event) {
