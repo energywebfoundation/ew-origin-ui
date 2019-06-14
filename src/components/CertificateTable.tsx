@@ -120,10 +120,10 @@ export class CertificateTable extends React.Component<ICertificateTableProps, IC
         const promises = props.certificates.map(async (certificate: Certificate.Entity) => {
             let acceptedCurrency = await this.getTokenSymbol(certificate);
 
-            if (acceptedCurrency === null) {
-                const { currency } = await certificate.getOffChainSettlementOptions();
-                acceptedCurrency = Currency[currency];
-            }
+            // if (acceptedCurrency === null) {
+            //     const { currency } = await certificate.getOffChainSettlementOptions();
+            //     acceptedCurrency = Currency[currency];
+            // }
 
             return {
                 certificate,
