@@ -20,6 +20,7 @@ interface IPublishForSaleModalProps {
     certificate: Certificate.Entity;
     producingAsset: ProducingAsset.Entity;
     showModal: boolean;
+    callback: () => void;
 }
 
 interface IPublishForSaleModalState {
@@ -37,12 +38,12 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     constructor(props, context) {
         super(props, context);
 
-        this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.publishForSale = this.publishForSale.bind(this);
         this.validateInputs = this.validateInputs.bind(this);
         this.isFormValid = this.isFormValid.bind(this);
 
+        // console.log(props.showModal)
         this.state = {
             show: props.showModal,
             price: 1,
@@ -57,6 +58,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     componentWillReceiveProps(newProps: IPublishForSaleModalProps) {
+        console.log('new props: showModal' + newProps.showModal);
         this.setState({
             show: newProps.showModal,
         });
@@ -103,6 +105,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
             }
 
             showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
+            this.props.callback();
             this.handleClose();
         }
     }
@@ -153,10 +156,6 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
 
     handleClose() {
         this.setState({ show: false });
-    }
-
-    handleShow() {
-        this.setState({ show: true });
     }
 
     render() {
