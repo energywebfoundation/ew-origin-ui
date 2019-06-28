@@ -57,7 +57,6 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     componentWillReceiveProps(newProps: IPublishForSaleModalProps) {
-        console.log('new props: showModal' + newProps.showModal);
         this.setState({
             show: newProps.showModal,
         });
