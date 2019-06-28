@@ -43,7 +43,6 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         this.validateInputs = this.validateInputs.bind(this);
         this.isFormValid = this.isFormValid.bind(this);
 
-        // console.log(props.showModal)
         this.state = {
             show: props.showModal,
             price: 1,
