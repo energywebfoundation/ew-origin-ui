@@ -44,7 +44,6 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         this.handleClose = this.handleClose.bind(this);
         this.publishForSale = this.publishForSale.bind(this);
         this.validateInputs = this.validateInputs.bind(this);
-        this.isFormValid = this.isFormValid.bind(this);
 
         const minKwh = 0.001;
 
@@ -87,10 +86,22 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     async publishForSale() {
-        let { price, erc20TokenAddress, currency } = this.state;
-        const { certificate } = this.props;
+        const { kwh, price, erc20TokenAddress, currency } = this.state;
+        let { certificate } = this.props;
 
-        if (this.isFormValid()) {
+        if (this.isFormValid) {
+            const wh = kwh * 1000;
+
+            if (wh < Number(certificate.powerInW)) {
+                await certificate.splitCertificate(wh);
+                certificate = await certificate.sync();
+
+                certificate = await new Certificate.Entity(
+                    certificate.children['0'],
+                    this.props.conf
+                ).sync();
+            }
+
             if (certificate.forSale) {
                 this.handleClose();
                 showNotification(`Certificate ${certificate.id} has already been published for sale.`, NotificationType.Error);
@@ -101,14 +112,12 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
             if (this.isErc20Sale) {
                 await certificate.publishForSale(price, erc20TokenAddress);
             } else {
-                // Convert to cents
-                price = price * 100;
-
+                const priceInCents = price * 100;
                 await certificate.setOffChainSettlementOptions({
-                    price,
+                    price: priceInCents,
                     currency: Currency[currency]
                 });
-                await certificate.publishForSale(price, '0x0000000000000000000000000000000000000000');
+                await certificate.publishForSale(priceInCents, '0x0000000000000000000000000000000000000000');
             }
 
             showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
@@ -123,7 +132,10 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         switch (event.target.id) {
             case 'kwhInput':
                 const kwh = Number(event.target.value);
-                const kwhValid = !isNaN(kwh) && kwh > this.state.minKwh && countDecimals(kwh) <= 3;
+                const kwhValid = !isNaN(kwh)
+                    && kwh >= this.state.minKwh
+                    && kwh <= this.props.certificate.powerInW / 1000
+                    && countDecimals(kwh) <= 3;
 
                 this.setState({
                     kwh: event.target.value,
@@ -162,7 +174,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
         }
     }
 
-    isFormValid() {
+    get isFormValid() {
         const { validation } = this.state;
 
         if (!this.isErc20Sale) {
@@ -251,7 +263,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={this.handleClose} className="modal-button modal-button-cancel">Cancel</Button>
-                    <Button variant="primary" onClick={this.publishForSale} className="modal-button modal-button-publish" disabled={!this.isFormValid()}>
+                    <Button variant="primary" onClick={this.publishForSale} className="modal-button modal-button-publish" disabled={!this.isFormValid}>
                         Publish for sale
                     </Button>
                 </Modal.Footer>
