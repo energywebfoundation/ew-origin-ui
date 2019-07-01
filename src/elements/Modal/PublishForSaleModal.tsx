@@ -86,22 +86,11 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     async publishForSale() {
-        const { kwh, price, erc20TokenAddress, currency } = this.state;
+        const { kwh, erc20TokenAddress, currency } = this.state;
+        let { price } = this.state;
         let { certificate } = this.props;
 
         if (this.isFormValid) {
-            const wh = kwh * 1000;
-
-            if (wh < Number(certificate.powerInW)) {
-                await certificate.splitCertificate(wh);
-                certificate = await certificate.sync();
-
-                certificate = await new Certificate.Entity(
-                    certificate.children['0'],
-                    this.props.conf
-                ).sync();
-            }
-
             if (certificate.forSale) {
                 this.handleClose();
                 showNotification(`Certificate ${certificate.id} has already been published for sale.`, NotificationType.Error);
@@ -109,15 +98,32 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 return;
             }
 
-            if (this.isErc20Sale) {
-                await certificate.publishForSale(price, erc20TokenAddress);
+            price = this.isErc20Sale ? price : price * 100;
+
+            const erc20TokenUsedForSale = this.isErc20Sale ? erc20TokenAddress : '0x0000000000000000000000000000000000000000';
+
+            const whForSale = kwh * 1000;
+            const certificateEnergy = Number(certificate.powerInW);
+
+            if (whForSale < certificateEnergy) {
+                await certificate.splitAndPublishForSale(whForSale, price, erc20TokenUsedForSale);
+                certificate = await certificate.sync();
+
+                certificate = await new Certificate.Entity(certificate.children['0'], this.props.conf).sync();
+            } else if (whForSale === certificateEnergy) {
+                await certificate.publishForSale(price, erc20TokenUsedForSale);
             } else {
-                const priceInCents = price * 100;
+                this.handleClose();
+                showNotification(`Certificate ${certificate.id} with energy ${certificateEnergy} does not have enough energy (${whForSale}) to perform the request.`, NotificationType.Error);
+
+                return;
+            }
+
+            if (!this.isErc20Sale) {
                 await certificate.setOffChainSettlementOptions({
-                    price: priceInCents,
+                    price,
                     currency: Currency[currency]
                 });
-                await certificate.publishForSale(priceInCents, '0x0000000000000000000000000000000000000000');
             }
 
             showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
