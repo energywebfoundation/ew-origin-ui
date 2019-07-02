@@ -86,9 +86,8 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     async publishForSale() {
-        const { kwh, erc20TokenAddress, currency } = this.state;
-        let { price } = this.state;
-        let { certificate } = this.props;
+        const { price, kwh, erc20TokenAddress, currency } = this.state;
+        const { certificate } = this.props;
 
         if (this.isFormValid) {
             if (certificate.forSale) {
@@ -98,35 +97,13 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 return;
             }
 
-            price = this.isErc20Sale ? price : price * 100;
+            await certificate.publishForSale(
+                price,
+                this.isErc20Sale ? erc20TokenAddress : Currency[currency],
+                kwh * 1000
+            );
 
-            const erc20TokenUsedForSale = this.isErc20Sale ? erc20TokenAddress : '0x0000000000000000000000000000000000000000';
-
-            const whForSale = kwh * 1000;
-            const certificateEnergy = Number(certificate.powerInW);
-
-            if (whForSale < certificateEnergy) {
-                await certificate.splitAndPublishForSale(whForSale, price, erc20TokenUsedForSale);
-                certificate = await certificate.sync();
-
-                certificate = await new Certificate.Entity(certificate.children['0'], this.props.conf).sync();
-            } else if (whForSale === certificateEnergy) {
-                await certificate.publishForSale(price, erc20TokenUsedForSale);
-            } else {
-                this.handleClose();
-                showNotification(`Certificate ${certificate.id} with energy ${certificateEnergy} does not have enough energy (${whForSale}) to perform the request.`, NotificationType.Error);
-
-                return;
-            }
-
-            if (!this.isErc20Sale) {
-                await certificate.setOffChainSettlementOptions({
-                    price,
-                    currency: Currency[currency]
-                });
-            }
-
-            showNotification(`Certificate ${certificate.id} has been published for sale.`, NotificationType.Success);
+            showNotification(`Certificate has been published for sale.`, NotificationType.Success);
             this.props.callback();
             this.handleClose();
         }
@@ -157,6 +134,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
                 const priceValid = !isNaN(price)
                     && price > 0
                     && countDecimals(price) <= (this.isErc20Sale ? 0 : 2);
+                console.log({price, priceValid})
 
                 this.setState({
                     price: event.target.value,
