@@ -104,7 +104,6 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
             );
 
             showNotification(`Certificate has been published for sale.`, NotificationType.Success);
-            this.props.callback();
             this.handleClose();
         }
     }
@@ -182,6 +181,7 @@ class PublishForSaleModal extends React.Component<IPublishForSaleModalProps, IPu
     }
 
     handleClose() {
+        this.props.callback();
         this.setState({ show: false });
     }
 
