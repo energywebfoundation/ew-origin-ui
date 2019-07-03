@@ -77,7 +77,6 @@ export class RequestIRECsModal extends React.Component<IRequestIRECsModalProps, 
 
         showNotification(`Certificates for ${energy} kWh requested.`, NotificationType.Success);
 
-        this.props.callback();
         this.handleClose();
     }
 
@@ -86,6 +85,7 @@ export class RequestIRECsModal extends React.Component<IRequestIRECsModalProps, 
     }
 
     handleClose() {
+        this.props.callback();
         this.setState({ show: false });
     }
 

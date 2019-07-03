@@ -60,7 +60,6 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
 
         const data = [];
 
-        let i = 0;
         for (let i = 0; i < requests.length; i++) {
             const request = requests[i];
             const asset = this.props.producingAssets.find(a => a.id === request.assetId);
