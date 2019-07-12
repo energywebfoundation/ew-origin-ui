@@ -8,7 +8,7 @@ import { CertificateLogic } from 'ew-origin-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { User, Role } from 'ew-user-registry-lib';
 import { showNotification, NotificationType } from '../utils/notifications';
-import { TableWrapper, ITableWrapperState, DEFAULT_PAGE_SIZE, ITableWrapperFetchDataParameters, ITableWrapperFetchDataReturnValues } from '../elements/Table/TableWrapper';
+import { PaginatedLoader, IPaginatedLoaderState, DEFAULT_PAGE_SIZE, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
 interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -17,15 +17,11 @@ interface ICertificateTableProps {
     approvedOnly?: boolean;
 }
 
-interface ICertificatesState extends ITableWrapperState {
-    data: any[];
-}
-
 enum OPERATIONS {
     APPROVE = 'Approve'
 }
 
-export class CertificationRequestsTable extends TableWrapper<ICertificateTableProps, ICertificatesState> {
+export class CertificationRequestsTable extends PaginatedLoader<ICertificateTableProps, IPaginatedLoaderState> {
     constructor(props: ICertificateTableProps) {
         super(props);
 
@@ -48,7 +44,7 @@ export class CertificationRequestsTable extends TableWrapper<ICertificateTablePr
         }
     }
 
-    async fetchData({ pageSize, offset }: ITableWrapperFetchDataParameters): Promise<ITableWrapperFetchDataReturnValues> {
+    async getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
         if (!this.props.currentUser) {
             return {
                 data: [],

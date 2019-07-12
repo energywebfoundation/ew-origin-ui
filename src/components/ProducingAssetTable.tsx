@@ -25,7 +25,7 @@ import { Configuration } from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { showNotification, NotificationType } from '../utils/notifications';
 import { RequestIRECsModal } from '../elements/Modal/RequestIRECsModal';
-import { TableWrapper, ITableWrapperState, DEFAULT_PAGE_SIZE } from '../elements/Table/TableWrapper';
+import { PaginatedLoader, IPaginatedLoaderState, DEFAULT_PAGE_SIZE } from '../elements/Table/PaginatedLoader';
 
 export interface ProducingAssetTableProps {
     conf: Configuration.Entity;
@@ -36,7 +36,7 @@ export interface ProducingAssetTableProps {
     switchedToOrganization: boolean;
 }
 
-interface IProducingAssetTableState extends ITableWrapperState {
+interface IProducingAssetTableState extends IPaginatedLoaderState {
     detailViewForAssetId: number;
     requestIRECsModalAsset: ProducingAsset.Entity;
     showRequestIRECsModal: boolean;
@@ -54,7 +54,7 @@ enum OPERATIONS {
     SHOW_DETAILS = 'Show Details'
 }
 
-export class ProducingAssetTable extends TableWrapper<ProducingAssetTableProps, IProducingAssetTableState> {    
+export class ProducingAssetTable extends PaginatedLoader<ProducingAssetTableProps, IProducingAssetTableState> {    
     constructor(props: ProducingAssetTableProps) {
         super(props);
 
@@ -172,7 +172,7 @@ export class ProducingAssetTable extends TableWrapper<ProducingAssetTableProps, 
         });
     }
 
-    async fetchData({ pageSize, offset }) {
+    async getPaginatedData({ pageSize, offset }) {
         const producingAssets: ProducingAsset.Entity[] = this.props.producingAssets.slice(offset, offset + pageSize);
         const enrichedProducingAssetData = await this.enrichProducingAssetData(producingAssets);
         const total = this.props.producingAssets.length;

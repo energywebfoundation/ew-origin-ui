@@ -2,29 +2,29 @@ import { Component, ReactText } from 'react';
 
 export const DEFAULT_PAGE_SIZE = 25;
 
-export type ITableWrapperProps = any;
+export type IPaginatedLoaderProps = any;
 
-export interface ITableWrapperState {
+export interface IPaginatedLoaderState {
     data: ReactText[][];
     pageSize: number;
     total: number;
 }
 
-export interface ITableWrapperFetchDataParameters {
+export interface IPaginatedLoaderFetchDataParameters {
     pageSize: number;
     offset: number;
 }
 
-export interface ITableWrapperFetchDataReturnValues {
+export interface IPaginatedLoaderFetchDataReturnValues {
     data: ReactText[][];
     total: number;
 }
 
-export interface ITableWrapper {
-    fetchData({ pageSize, offset }: ITableWrapperFetchDataParameters) : Promise<ITableWrapperFetchDataReturnValues>
+export interface IPaginatedLoader {
+    getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters) : Promise<IPaginatedLoaderFetchDataReturnValues>
 }
 
-export abstract class TableWrapper<Props extends ITableWrapperProps, State extends ITableWrapperState> extends Component<Props, State> implements ITableWrapper {
+export abstract class PaginatedLoader<Props extends IPaginatedLoaderProps, State extends IPaginatedLoaderState> extends Component<Props, State> implements IPaginatedLoader {
     protected _isMounted: boolean = false;
 
     constructor(props: Props) {
@@ -43,7 +43,7 @@ export abstract class TableWrapper<Props extends ITableWrapperProps, State exten
         this._isMounted = false;
     }
 
-    abstract fetchData({ pageSize, offset }: ITableWrapperFetchDataParameters): Promise<ITableWrapperFetchDataReturnValues>
+    abstract getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues>
 
     async loadPage(page: number) {
         const {
@@ -52,7 +52,7 @@ export abstract class TableWrapper<Props extends ITableWrapperProps, State exten
 
         const offset = (page - 1) * pageSize;
     
-        const { total, data } = await this.fetchData({
+        const { total, data } = await this.getPaginatedData({
             pageSize,
             offset
         });

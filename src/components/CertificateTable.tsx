@@ -31,7 +31,7 @@ import { showNotification, NotificationType } from '../utils/notifications';
 import { PublishForSaleModal } from '../elements/Modal/PublishForSaleModal';
 import { BuyCertificateModal } from '../elements/Modal/BuyCertificateModal';
 import { Erc20TestToken } from 'ew-erc-test-contracts';
-import { TableWrapper, DEFAULT_PAGE_SIZE, ITableWrapperState, ITableWrapperFetchDataParameters, ITableWrapperFetchDataReturnValues } from '../elements/Table/TableWrapper';
+import { PaginatedLoader, DEFAULT_PAGE_SIZE, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
 export interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -53,7 +53,7 @@ export interface IEnrichedCertificateData {
     isOffChainSettlement: boolean;
 }
 
-export interface ICertificatesState extends ITableWrapperState {
+export interface ICertificatesState extends IPaginatedLoaderState {
     selectedState: SelectedState;
     detailViewForCertificateId: number;
     matchedCertificates: Certificate.Entity[];
@@ -83,7 +83,7 @@ export enum OPERATIONS {
     SHOW_DETAILS = 'Show Certificate Details'
 }
 
-export class CertificateTable extends TableWrapper<ICertificateTableProps, ICertificatesState> {
+export class CertificateTable extends PaginatedLoader<ICertificateTableProps, ICertificatesState> {
     constructor(props: ICertificateTableProps) {
         super(props);
 
@@ -131,7 +131,7 @@ export class CertificateTable extends TableWrapper<ICertificateTableProps, ICert
         }
     }
 
-    async fetchData({ pageSize, offset }: ITableWrapperFetchDataParameters): Promise<ITableWrapperFetchDataReturnValues> {
+    async getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
         const enrichedData = await this.enrichData(this.props.certificates);        
 
         const filteredIEnrichedCertificateData = enrichedData.filter(
