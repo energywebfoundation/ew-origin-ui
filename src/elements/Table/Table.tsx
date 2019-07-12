@@ -23,6 +23,7 @@ import moment from 'moment';
 import action from '../../../assets/action.svg';
 import { PeriodToSeconds } from '../../components/DemandTable';
 import { TimeFrame } from 'ew-utils-general-lib';
+import ReactPaginate from 'react-paginate';
 
 import './toggle.scss';
 import './Table.scss';
@@ -31,6 +32,9 @@ import './datepicker.scss';
 interface IProps {
     header: Array<ITableHeaderData | ITableAdminHeaderData>;
     data: any;
+    loadPage?: (page: number) => {};
+    pageSize?: number;
+    total?: number;
     footer?: any;
     actions?: any | boolean;
     actionWidth?: any;
@@ -55,7 +59,19 @@ export interface ITableAdminHeaderData {
     key?: string;
 }
 
-export class Table extends React.Component<IProps, any> {
+interface State {
+    inputs: any;
+    totalEnergy: any;
+    date: any;
+    currentPage: number;
+
+    [x: string]: any;
+    [x: number]: any;
+}
+
+export class Table extends React.Component<IProps, State> {
+    _isMounted = false;
+
     constructor(props) {
         super(props);
 
@@ -94,9 +110,19 @@ export class Table extends React.Component<IProps, any> {
                 ]
             },
             totalEnergy: 0,
-            date: new Date()
+            date: new Date(),
+            currentPage: 1
         };
     }
+
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     calculateTotal = (data, keys) => {
         const ret = {};
         const offset = keys[0].colspan - 1;
@@ -119,6 +145,18 @@ export class Table extends React.Component<IProps, any> {
         }
 
         return ret;
+    }
+
+    async loadPage(page: number) {
+        await this.props.loadPage(page);
+
+        if (!this._isMounted) {
+            return;
+        }
+
+        this.setState({
+            currentPage: page
+        });
     }
 
     handleDropdown = (key, itemInput) => {
@@ -214,6 +252,10 @@ export class Table extends React.Component<IProps, any> {
         }
     }
 
+    get offset() {
+        return (this.state.currentPage - 1) * this.props.pageSize;
+    }
+
     render() {
         const { state, props, handleToggle, handleDropdown, handleInput, handleDate } = this;
         const {
@@ -227,7 +269,8 @@ export class Table extends React.Component<IProps, any> {
             operations = [],
             operationClicked = () => {}
         } = props;
-        const total = type === 'data' ? this.calculateTotal(data, footer) : 0;
+
+        const totalTableColumnSum = type === 'data' ? this.calculateTotal(data, footer) : 0;
 
         const popoverFocus = (id: number) => (
             <Popover id="popover-trigger-focus">
@@ -248,6 +291,7 @@ export class Table extends React.Component<IProps, any> {
         return (
             <div className="TableWrapper">
                 {type === 'data' && (
+                    <>
                     <table className={(classNames || []).join(' ')}>
                         <thead>
                             <tr>
@@ -275,7 +319,7 @@ export class Table extends React.Component<IProps, any> {
                                             style={item.style || {}}
                                             key={item.key}
                                         >
-                                            {renderHTML(renderText(item.label || total[item.key]))}
+                                            {renderHTML(renderText(item.label || totalTableColumnSum[item.key]))}
                                         </td>
                                     );
                                 })}
@@ -321,6 +365,8 @@ export class Table extends React.Component<IProps, any> {
                             })}
                         </tbody>
                     </table>
+                    {this.getPagination()}            
+                    </>
                 )}
                 {type === 'admin' && (
                     <table className={`${type}`}>
@@ -491,6 +537,50 @@ export class Table extends React.Component<IProps, any> {
                 )}
             </div>
         );
+    }
+
+    getPagination() {
+        const {
+            data,
+            total,
+            pageSize
+        } = this.props;
+
+        if (!data || !total || !pageSize) {
+            return;
+        }
+
+        const numPages = total > 0 ? Math.ceil(total / pageSize) : 0;
+
+        if (!numPages) {
+            return;
+        }
+
+        return (<div className="Table_pagination row">
+            <div
+                className={data.length ? 'col-md-6' : 'd-none'}
+                >
+                Showing {this.offset + 1} to {this.offset + data.length} of {total} entries
+            </div>
+            {numPages > 1 && (
+                    <div className="col-md-6 text-right">
+                        <ReactPaginate
+                            previousClassName={'d-none'}
+                            nextClassName={'d-none'}
+                            breakLabel='...'
+                            breakClassName={'Table_pagination_list_entry'}
+                            pageCount={numPages}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={3}
+                            onPageChange={({ selected }) => this.loadPage(selected + 1)}
+                            containerClassName={'Table_pagination_list'}
+                            pageClassName={'Table_pagination_list_entry'}
+                            pageLinkClassName={''}
+                            activeClassName={'Table_pagination_list_entry-current'}
+                        />
+                </div>
+            )}
+        </div>);
     }
 }
 

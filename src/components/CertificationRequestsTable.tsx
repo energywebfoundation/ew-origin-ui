@@ -8,6 +8,7 @@ import { CertificateLogic } from 'ew-origin-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { User, Role } from 'ew-user-registry-lib';
 import { showNotification, NotificationType } from '../utils/notifications';
+import { TableWrapper, ITableWrapperState, DEFAULT_PAGE_SIZE, ITableWrapperFetchDataParameters, ITableWrapperFetchDataReturnValues } from '../elements/Table/TableWrapper';
 
 interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -16,7 +17,7 @@ interface ICertificateTableProps {
     approvedOnly?: boolean;
 }
 
-interface ICertificatesState {
+interface ICertificatesState extends ITableWrapperState {
     data: any[];
 }
 
@@ -24,30 +25,35 @@ enum OPERATIONS {
     APPROVE = 'Approve'
 }
 
-export class CertificationRequestsTable extends React.Component<ICertificateTableProps, ICertificatesState> {
+export class CertificationRequestsTable extends TableWrapper<ICertificateTableProps, ICertificatesState> {
     constructor(props: ICertificateTableProps) {
         super(props);
 
         this.state = {
-            data: []
+            data: [],
+            pageSize: DEFAULT_PAGE_SIZE,
+            total: 0
         };
 
         this.operationClicked = this.operationClicked.bind(this);
     }
 
     async componentDidMount() {
-        this.fetchData();
+        this.loadPage(1);
     }
 
     async componentDidUpdate(prevProps) {
         if (prevProps !== this.props) {
-            this.fetchData();
+            this.loadPage(1);
         }
     }
-   
-    async fetchData() {
+
+    async fetchData({ pageSize, offset }: ITableWrapperFetchDataParameters): Promise<ITableWrapperFetchDataReturnValues> {
         if (!this.props.currentUser) {
-            return;
+            return {
+                data: [],
+                total: 0
+            };
         }
 
         const view = this.props.approvedOnly ? 'approved' : 'pending';
@@ -58,7 +64,7 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
 
         const requests = await certificateLogic.getCertificationRequests();
 
-        const data = [];
+        let data = [];
 
         for (let i = 0; i < requests.length; i++) {
             const request = requests[i];
@@ -87,12 +93,16 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
                 energy / 1000
             ]);
         }
+        
+        const total = data.length;
+        data = data.slice(offset, offset + pageSize);
 
-        this.setState({
-            data
-        });
+        return {
+            data,
+            total
+        }
     }
-
+   
     render() {
         const defaultWidth = 106;
         const generateHeader = (label, width = defaultWidth, right = false, body = false) =>
@@ -107,8 +117,6 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
             generateHeader('Capacity (kW)'),
             generateHeader('Meter Read (kWh)')
         ];
-
-        const data = this.state.data;
 
         const TableFooter = [
             {
@@ -137,9 +145,12 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
                     footer={TableFooter}
                     actions={true}
                     actionWidth={55}
-                    data={data}
+                    data={this.state.data}
                     operations={operations}
                     operationClicked={this.operationClicked}
+                    loadPage={this.loadPage}
+                    total={this.state.total}
+                    pageSize={this.state.pageSize}
                 />
             </div>
         );
@@ -157,7 +168,7 @@ export class CertificationRequestsTable extends React.Component<ICertificateTabl
 
             showNotification(`Certification request approved.`, NotificationType.Success);
 
-            await this.fetchData();
+            await this.loadPage(1);
         } catch (error) {
             showNotification(`Could not approve certification request.`, NotificationType.Error);
             console.error(error);
