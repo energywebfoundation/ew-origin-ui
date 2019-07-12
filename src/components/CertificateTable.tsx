@@ -118,8 +118,8 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
     }
 
     async componentDidMount() {
-        this._isMounted = true;
-        
+        await super.componentDidMount();        
+
         if (this.props.selectedState === SelectedState.ForDemand && this.props.demand) {
             await this.initMatchingCertificates(this.props.demand);
         }
