@@ -10,7 +10,7 @@ const wait = (ms: number) => {
     });
 }
 
-it.only('renders the table', async () => {
+it('renders the table', async () => {
     const PAGE_SIZE = 3;
     const HEADER_DEFINITION = [
         `Header1`,
