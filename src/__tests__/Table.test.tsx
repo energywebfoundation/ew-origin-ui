@@ -10,7 +10,7 @@ const wait = (ms: number) => {
     });
 }
 
-it('renders the table', async () => {
+it('correctly renders Table component', async () => {
     const PAGE_SIZE = 3;
     const HEADER_DEFINITION = [
         `Header1`,
