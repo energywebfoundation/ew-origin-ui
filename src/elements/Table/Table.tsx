@@ -28,11 +28,12 @@ import ReactPaginate from 'react-paginate';
 import './toggle.scss';
 import './Table.scss';
 import './datepicker.scss';
+import { dataTest } from '../../utils/Helper';
 
 interface IProps {
     header: Array<ITableHeaderData | ITableAdminHeaderData>;
     data: any;
-    loadPage?: (page: number) => {};
+    loadPage?: (page: number) => void;
     pageSize?: number;
     total?: number;
     footer?: any;
@@ -124,6 +125,10 @@ export class Table extends React.Component<IProps, State> {
     }
 
     calculateTotal = (data, keys) => {
+        if (!keys || keys.length === 0) {
+            return;
+        }
+
         const ret = {};
         const offset = keys[0].colspan - 1;
         for (let k = 1; k < keys.length; k++) {
@@ -259,9 +264,9 @@ export class Table extends React.Component<IProps, State> {
     render() {
         const { state, props, handleToggle, handleDropdown, handleInput, handleDate } = this;
         const {
-            header,
-            footer,
-            data,
+            header = [],
+            footer = [],
+            data = [],
             actions,
             actionWidth,
             classNames,
@@ -559,6 +564,7 @@ export class Table extends React.Component<IProps, State> {
         return (<div className="Table_pagination row">
             <div
                 className={data.length ? 'col-md-6' : 'd-none'}
+                {...dataTest('pagination-helper-text')}
                 >
                 Showing {this.offset + 1} to {this.offset + data.length} of {total} entries
             </div>
