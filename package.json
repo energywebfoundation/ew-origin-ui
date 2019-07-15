@@ -86,7 +86,9 @@
     "moduleFileExtensions": [
       "ts",
       "tsx",
-      "js"
+      "js",
+      "node",
+      "json"
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/src/__tests__/config/test-preprocessor.js"

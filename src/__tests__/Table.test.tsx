@@ -56,7 +56,7 @@ it('correctly renders Table component', async () => {
 
     let loadPage, rows;
 
-    const shallowTable = mount(
+    const renderedTable = mount(
         <Table
             header={header}
             data={paginatedData}
@@ -71,18 +71,18 @@ it('correctly renders Table component', async () => {
     
         paginatedData = data.slice(offset, offset + PAGE_SIZE);
 
-        shallowTable.setProps({
+        renderedTable.setProps({
             data: paginatedData
         });
     }
 
-    shallowTable.setProps({
+    renderedTable.setProps({
         loadPage
     })
 
     loadPage(1);
 
-    const thElements = shallowTable.find('thead tr th');
+    const thElements = renderedTable.find('thead tr th');
 
     expect(thElements.length).toEqual(header.length);
 
@@ -91,7 +91,7 @@ it('correctly renders Table component', async () => {
     });
 
     function assertRowsCorrectness() {
-        rows = shallowTable.find(SELECTORS.ROW);
+        rows = renderedTable.find(SELECTORS.ROW);
 
         expect(rows.length).toBe(paginatedData.length);
 
@@ -102,14 +102,14 @@ it('correctly renders Table component', async () => {
 
     assertRowsCorrectness();
 
-    const pagination = shallowTable.find('.Table_pagination');
+    const pagination = renderedTable.find('.Table_pagination');
     const paginationElements = pagination.find('ul li');
 
     expect(pagination.find(dataTestSelector('pagination-helper-text')).text()).toBe(`Showing 1 to ${PAGE_SIZE} of ${total} entries`);
 
     expect(paginationElements.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('1');
 
-    shallowTable.find('a[aria-label="Page 2"]').simulate('click');
+    renderedTable.find('a[aria-label="Page 2"]').simulate('click');
     await wait(0);    
     expect(paginationElements.map(el => el.text())).toEqual([
         "Previous",
@@ -120,23 +120,23 @@ it('correctly renders Table component', async () => {
         "Next"
     ]);
 
-    expect(shallowTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('2');
+    expect(renderedTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('2');
 
     expect(pagination.find(dataTestSelector('pagination-helper-text')).text()).toBe(`Showing ${1 + PAGE_SIZE} to ${2*PAGE_SIZE} of ${total} entries`);
 
     assertRowsCorrectness();
 
-    shallowTable.find('a[aria-label="Page 3"]').simulate('click');
+    renderedTable.find('a[aria-label="Page 3"]').simulate('click');
 
     await wait(0);
 
     expect(pagination.find(dataTestSelector('pagination-helper-text')).text()).toBe(`Showing ${1 + 2 * PAGE_SIZE} to ${3*PAGE_SIZE} of ${total} entries`);
 
-    expect(shallowTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('3');
+    expect(renderedTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('3');
 
     assertRowsCorrectness();
 
-    shallowTable.find('a[aria-label="Page 4"]').simulate('click');
+    renderedTable.find('a[aria-label="Page 4"]').simulate('click');
 
     await wait(0);
 
@@ -144,5 +144,5 @@ it('correctly renders Table component', async () => {
 
     assertRowsCorrectness();
 
-    expect(shallowTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('4');
+    expect(renderedTable.find(SELECTORS.CURRENT_PAGINATION_ENTRY).text()).toBe('4');
 });
