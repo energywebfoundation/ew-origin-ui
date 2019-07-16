@@ -36,7 +36,7 @@ it('correctly renders Table component', async () => {
     const DEFAULT_WIDTH = 50;
     
     const SELECTORS = {
-        CURRENT_PAGINATION_ENTRY: '.Table_pagination_list_entry-current',
+        CURRENT_PAGINATION_ENTRY: '.Pagination_list_entry-current',
         ROW: 'tbody tr'
     }
     const rowStyle = `style="width: ${DEFAULT_WIDTH}px;"`;
@@ -102,7 +102,7 @@ it('correctly renders Table component', async () => {
 
     assertRowsCorrectness();
 
-    const pagination = renderedTable.find('.Table_pagination');
+    const pagination = renderedTable.find('.Pagination');
     const paginationElements = pagination.find('ul li');
 
     expect(pagination.find(dataTestSelector('pagination-helper-text')).text()).toBe(`Showing 1 to ${PAGE_SIZE} of ${total} entries`);

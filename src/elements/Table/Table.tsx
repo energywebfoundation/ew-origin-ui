@@ -23,7 +23,7 @@ import moment from 'moment';
 import action from '../../../assets/action.svg';
 import { PeriodToSeconds } from '../../components/DemandTable';
 import { TimeFrame } from 'ew-utils-general-lib';
-import ReactPaginate from 'react-paginate';
+import { Pagination } from './Pagination';
 
 import './toggle.scss';
 import './Table.scss';
@@ -114,6 +114,8 @@ export class Table extends React.Component<IProps, State> {
             date: new Date(),
             currentPage: 1
         };
+
+        this.loadPage = this.loadPage.bind(this);
     }
 
     componentDidMount() {
@@ -257,10 +259,6 @@ export class Table extends React.Component<IProps, State> {
         }
     }
 
-    get offset() {
-        return (this.state.currentPage - 1) * this.props.pageSize;
-    }
-
     render() {
         const { state, props, handleToggle, handleDropdown, handleInput, handleDate } = this;
         const {
@@ -370,7 +368,13 @@ export class Table extends React.Component<IProps, State> {
                             })}
                         </tbody>
                     </table>
-                    {this.getPagination()}            
+                    <Pagination
+                        displayedEntriesLength={data.length}
+                        currentPage={this.state.currentPage}
+                        loadPage={this.loadPage}
+                        pageSize={this.props.pageSize}
+                        total={this.props.total}
+                    />        
                     </>
                 )}
                 {type === 'admin' && (
@@ -542,51 +546,6 @@ export class Table extends React.Component<IProps, State> {
                 )}
             </div>
         );
-    }
-
-    getPagination() {
-        const {
-            data,
-            total,
-            pageSize
-        } = this.props;
-
-        if (!data || !total || !pageSize) {
-            return;
-        }
-
-        const numPages = total > 0 ? Math.ceil(total / pageSize) : 0;
-
-        if (!numPages) {
-            return;
-        }
-
-        return (<div className="Table_pagination row">
-            <div
-                className={data.length ? 'col-md-6' : 'd-none'}
-                {...dataTest('pagination-helper-text')}
-                >
-                Showing {this.offset + 1} to {this.offset + data.length} of {total} entries
-            </div>
-            {numPages > 1 && (
-                    <div className="col-md-6 text-right">
-                        <ReactPaginate
-                            previousClassName={'d-none'}
-                            nextClassName={'d-none'}
-                            breakLabel='...'
-                            breakClassName={'Table_pagination_list_entry'}
-                            pageCount={numPages}
-                            marginPagesDisplayed={2}
-                            pageRangeDisplayed={3}
-                            onPageChange={({ selected }) => this.loadPage(selected + 1)}
-                            containerClassName={'Table_pagination_list'}
-                            pageClassName={'Table_pagination_list_entry'}
-                            pageLinkClassName={''}
-                            activeClassName={'Table_pagination_list_entry-current'}
-                        />
-                </div>
-            )}
-        </div>);
     }
 }
 
