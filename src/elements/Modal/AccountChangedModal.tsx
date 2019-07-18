@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { IStoreState } from '../../types';
 import { bindActionCreators } from 'redux';
 import { disableAccountChangedModal, TDisableAccountChangedModal } from '../../features/general/actions';
+import { getAccountChangedModalVisible } from '../../features/general/selectors';
 
 interface AccountChangedModalProps {
     show: boolean;
@@ -55,7 +56,7 @@ export class AccountChangedModalClass extends React.Component<AccountChangedModa
 
 export const AccountChangedModal = connect(
     (state: IStoreState) => ({
-        show: state.general.accountChangedModalVisible
+        show: getAccountChangedModalVisible(state)
     }),
     dispatch => bindActionCreators({
         disableAccountChangedModal
