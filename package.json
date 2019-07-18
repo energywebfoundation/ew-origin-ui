@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "node --max-old-space-size=8192 node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack/dev.config.js --output-public-path=/dist/ -d --watch",
-    "build": "node --max-old-space-size=8192 webpack --config webpack/prod.config.js",
+    "build": "node --max-old-space-size=8192 ./node_modules/.bin/webpack --config webpack/prod.config.js",
     "build-full": "webpack --config webpack/prod.config.js",
     "lint": "&& tslint 'src/**/*{.ts,.tsx}'",
     "lint-fix": "tslint --fix 'src/**/*{.ts,.tsx}'",
