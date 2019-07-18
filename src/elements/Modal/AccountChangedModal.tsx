@@ -10,7 +10,6 @@ import { getAccountChangedModalVisible } from '../../features/general/selectors'
 
 interface AccountChangedModalProps {
     show: boolean;
-
     disableAccountChangedModal: TDisableAccountChangedModal;
 }
 

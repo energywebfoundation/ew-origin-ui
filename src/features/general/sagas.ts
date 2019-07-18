@@ -36,7 +36,7 @@ function* showAccountChangedModalOnChange(): SagaIterator {
 }
 
 export function* generalSaga(): SagaIterator {
-    yield all([
-        fork(showAccountChangedModalOnChange)
-    ]);
+  yield all([
+    fork(showAccountChangedModalOnChange)
+  ]);
 }
