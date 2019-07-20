@@ -37,7 +37,6 @@ import ganache from 'ganache-cli';
 import { dataTestSelector } from "../utils/Helper";
 import axios from "axios";
 
-
 const wait = (ms: number) => {
     return new Promise(resolve => {
         setTimeout(resolve, ms);
@@ -48,17 +47,22 @@ const API_BASE_URL = 'http://localhost:3030';
 
 jest.setTimeout(40000)
 
+let ganacheServer, apiServer;
+
 const startGanache = async () => {
     return new Promise(resolve => {
-        const server = ganache.server({
+        ganacheServer = ganache.server({
             mnemonic: 'chalk park staff buzz chair purchase wise oak receive avoid avoid home',
             gasLimit: 8000000,
             default_balance_ether: 1000000,
             total_accounts: 20
         });
-    
-        server.listen(8545, function(err, blockchain) {
-            resolve(blockchain);
+
+        ganacheServer.listen(8545, function(err, blockchain) {
+            resolve({
+                blockchain,
+                ganacheServer
+            });
         });
     })
 };
@@ -227,7 +231,7 @@ describe('Application[E2E]', () => {
     let CONTRACT;
 
     beforeAll(async () => {
-        await startAPI();
+        apiServer = await startAPI();
         await startGanache();
         const { deployResult } = await deployDemo();
 
@@ -340,5 +344,11 @@ describe('Application[E2E]', () => {
             "",
             "" 
         ]);
+
+        renderedApp.unmount();
+
+        await ganacheServer.close();
+
+        apiServer.close();
     });
 })
