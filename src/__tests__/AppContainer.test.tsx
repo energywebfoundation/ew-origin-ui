@@ -45,7 +45,7 @@ const wait = (ms: number) => {
 
 const API_BASE_URL = 'http://localhost:3030';
 
-jest.setTimeout(40000)
+jest.setTimeout(80000)
 
 let ganacheServer, apiServer;
 
@@ -286,7 +286,7 @@ describe('Application[E2E]', () => {
             </Provider>
         )
     
-        await wait(3000);
+        await wait(10000);
     
         await renderedApp.update();
 
