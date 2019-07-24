@@ -18,7 +18,7 @@ import * as React from 'react';
 import moment from 'moment';
 import { Redirect } from 'react-router-dom';
 
-import { Configuration, TimeFrame, Compliance, AssetType } from 'ew-utils-general-lib';
+import { Configuration, TimeFrame, Compliance, AssetType, Currency } from 'ew-utils-general-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
 import { Demand } from 'ew-market-lib';
@@ -186,7 +186,7 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
                     typeof(demand.offChainProperties.consumingAsset) !== 'undefined' ? demand.offChainProperties.consumingAsset : NO_VALUE_TEXT,
                     typeof(demand.offChainProperties.minCO2Offset) !== 'undefined' ? demand.offChainProperties.minCO2Offset.toLocaleString() : 0,
                     (demand.offChainProperties.targetWhPerPeriod / 1000).toLocaleString(),
-                    demand.offChainProperties.maxPricePerMwh,
+                    `${(demand.offChainProperties.maxPricePerMwh / 100).toFixed(2)} ${Currency[demand.offChainProperties.currency]}`,
                     overallDemand
                 ];
             }

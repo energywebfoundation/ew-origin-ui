@@ -50,11 +50,9 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         if (typeof(transformedInput.timeframe) !== 'undefined') {
             transformedInput.timeframe = TimeFrame[transformedInput.timeframe];
         }
-
         if (typeof(transformedInput.assettype) !== 'undefined') {
             transformedInput.assettype = AssetType[transformedInput.assettype];
         }
-
         if (typeof(transformedInput.consumingAsset) !== 'undefined') {
             transformedInput.consumingAsset = parseInt(transformedInput.consumingAsset, 10);
         }
@@ -64,7 +62,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         if (typeof(transformedInput.productingAsset) !== 'undefined') {
             transformedInput.productingAsset = parseInt(transformedInput.productingAsset, 10);
         }
-
         if (typeof(transformedInput.targetWhPerPeriod) !== 'undefined') {
             transformedInput.targetWhPerPeriod = parseInt(transformedInput.targetWhPerPeriod, 10);
         }
@@ -74,15 +71,14 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         if (typeof(transformedInput.startTime) !== 'undefined') {
             transformedInput.startTime = (transformedInput.startTime * 1000).toString();
         }
-
         if (typeof(transformedInput.endTime) !== 'undefined') {
             transformedInput.endTime = (transformedInput.endTime * 1000).toString();
         }
 
         const demandOffChainProps: Demand.IDemandOffChainProperties = {
             timeframe: transformedInput.timeframe,
-            maxPricePerMwh: creationDemandProperties.maxPricePerMwh,
-            currency: creationDemandProperties.currency,
+            maxPricePerMwh: Number(transformedInput.maxPricePerMwh) * 100,
+            currency: Number(Currency[transformedInput.currency]),
             otherGreenAttributes: creationDemandProperties.otherGreenAttributes,
             typeOfPublicSupport: creationDemandProperties.typeOfPublicSupport,
             targetWhPerPeriod: transformedInput.targetWhPerPeriod,
@@ -184,7 +180,16 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                         label: 'Max Price (per MWh)',
                         key: 'maxPricePerMwh',
                         toggle: { hide: true, description: '' },
-                        input: { type: 'text' }
+                        input: { type: 'number' }
+                    },
+                    {
+                        label: 'Currency',
+                        key: 'currency',
+                        toggle: { hide: true, description: '' },
+                        input: {
+                            type: 'select',
+                            data: 'currencies'
+                        }
                     }
                 ]
             },
@@ -317,13 +322,14 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         const assetTypes = getEnumValues(AssetType);
         const compliances = getEnumValues(Compliance);
         const timeframes = getEnumValues(TimeFrame);
+        const currencies = getEnumValues(Currency).filter(curr => Currency[curr] !== Currency.NONE);
 
         return (
             <div className="OnboardDemandWrapper">
                 <Table
                     type="admin"
                     header={Tables}
-                    data={{ assetTypes, compliances, timeframes }}
+                    data={{ assetTypes, compliances, timeframes, currencies}}
                 />
             </div>
         );

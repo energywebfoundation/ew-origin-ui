@@ -487,6 +487,13 @@ export class Table extends React.Component<IProps, State> {
                                                             />
                                                         </div>
                                                     )}
+                                                {item.input.type === 'number' && (
+                                                    <div>
+                                                        <input type="number"
+                                                            onChange={handleInput(item.key)}
+                                                        />
+                                                    </div>
+                                                )}
                                                 {item.input.type === 'date' && (
                                                     <div>
                                                         <input
