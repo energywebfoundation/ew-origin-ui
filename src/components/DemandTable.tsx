@@ -169,7 +169,6 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
         const data = enrichedData.map(
             (enrichedDemandData: IEnrichedDemandData) => {
                 const demand = enrichedDemandData.demand;
-                console.log({demand})
                 const overallDemand = Math.ceil(
                     (parseInt(demand.offChainProperties.endTime, 10) - parseInt(demand.offChainProperties.startTime, 10)) / PeriodToSeconds[demand.offChainProperties.timeframe] / 1000)
                         * (demand.offChainProperties.targetWhPerPeriod / 1000);

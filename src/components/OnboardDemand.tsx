@@ -17,8 +17,7 @@
 import * as React from 'react';
 import { Table, ITableAdminHeaderData } from '../elements/Table/Table';
 import { User } from 'ew-user-registry-lib';
-import { AssetType, TimeFrame, Currency, Configuration } from 'ew-utils-general-lib';
-import { Compliance } from 'ew-asset-registry-lib/dist/js/src/blockchain-facade/ProducingAsset';
+import { AssetType, TimeFrame, Compliance, Currency, Configuration } from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { Demand } from 'ew-market-lib';
 import { showNotification, NotificationType } from '../utils/notifications';
@@ -80,7 +79,7 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
             transformedInput.endTime = (transformedInput.endTime * 1000).toString();
         }
 
-        const demandOffchainProps: Demand.IDemandOffChainProperties = {
+        const demandOffChainProps: Demand.IDemandOffChainProperties = {
             timeframe: transformedInput.timeframe,
             maxPricePerMwh: creationDemandProperties.maxPricePerMwh,
             currency: creationDemandProperties.currency,
@@ -93,31 +92,31 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         };
 
         if (typeof transformedInput.productingAsset !== 'undefined') {
-            demandOffchainProps.productingAsset = transformedInput.productingAsset;
+            demandOffChainProps.productingAsset = transformedInput.productingAsset;
         }
 
         if (typeof transformedInput.consumingAsset !== 'undefined') {
-            demandOffchainProps.consumingAsset = transformedInput.consumingAsset;
+            demandOffChainProps.consumingAsset = transformedInput.consumingAsset;
         }
 
         if (typeof transformedInput.assettype !== 'undefined') {
-            demandOffchainProps.assettype = transformedInput.assettype;
+            demandOffChainProps.assettype = transformedInput.assettype;
         }
 
         if (typeof transformedInput.minCO2Offset !== 'undefined') {
-            demandOffchainProps.minCO2Offset = transformedInput.minCO2Offset;
+            demandOffChainProps.minCO2Offset = transformedInput.minCO2Offset;
         }
 
         if (typeof transformedInput.locationCountry !== 'undefined') {
-            demandOffchainProps.locationCountry = transformedInput.locationCountry;
+            demandOffChainProps.locationCountry = transformedInput.locationCountry;
         }
 
         if (typeof transformedInput.locationRegion !== 'undefined') {
-            demandOffchainProps.locationRegion = transformedInput.locationRegion;
+            demandOffChainProps.locationRegion = transformedInput.locationRegion;
         }
 
         if (typeof(transformedInput.registryCompliance) !== 'undefined') {
-            demandOffchainProps.registryCompliance = Compliance[transformedInput.registryCompliance] as any as Compliance;
+            demandOffChainProps.registryCompliance = Compliance[transformedInput.registryCompliance] as any as Compliance;
         }
 
         const demandProps: Demand.IDemandOnChainProperties = {
@@ -131,7 +130,7 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                 address: this.props.currentUser.id
             };
 
-            await Demand.createDemand(demandProps, demandOffchainProps, this.props.configuration);
+            await Demand.createDemand(demandProps, demandOffChainProps, this.props.configuration);
 
             showNotification('Demand created', NotificationType.Success);
         } catch (error) {
@@ -180,6 +179,12 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                         key: 'totalDemand',
                         toggle: { hide: true, description: '' },
                         input: { type: 'text' }
+                    },
+                    {
+                        label: 'Max Price (per MWh)',
+                        key: 'maxPricePerMwh',
+                        toggle: { hide: true, description: '' },
+                        input: { type: 'text' }
                     }
                 ]
             },
@@ -191,7 +196,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                     {
                         label: 'Min CO2 Offset',
                         key: 'minCO2Offset',
-
                         toggle: {
                             label: 'All',
                             index: 5,
@@ -304,9 +308,15 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
             }
         ];
 
-        const assetTypes = ['Wind', 'Solar', 'RunRiverHydro', 'BiomassGas'];
-        const compliances = ['none', 'IREC', 'EEC', 'TIGR'];
-        const timeframes = ['yearly', 'monthly', 'daily'];
+        const getEnumValues = enumeration => {
+            const enumObject = Object.keys(enumeration);
+
+            return enumObject.splice(Math.ceil(enumObject.length / 2), enumObject.length - 1);
+        };
+
+        const assetTypes = getEnumValues(AssetType);
+        const compliances = getEnumValues(Compliance);
+        const timeframes = getEnumValues(TimeFrame);
 
         return (
             <div className="OnboardDemandWrapper">
