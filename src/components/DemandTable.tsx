@@ -169,6 +169,7 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
         const data = enrichedData.map(
             (enrichedDemandData: IEnrichedDemandData) => {
                 const demand = enrichedDemandData.demand;
+                console.log({demand})
                 const overallDemand = Math.ceil(
                     (parseInt(demand.offChainProperties.endTime, 10) - parseInt(demand.offChainProperties.startTime, 10)) / PeriodToSeconds[demand.offChainProperties.timeframe] / 1000)
                         * (demand.offChainProperties.targetWhPerPeriod / 1000);
@@ -186,6 +187,7 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
                     typeof(demand.offChainProperties.consumingAsset) !== 'undefined' ? demand.offChainProperties.consumingAsset : NO_VALUE_TEXT,
                     typeof(demand.offChainProperties.minCO2Offset) !== 'undefined' ? demand.offChainProperties.minCO2Offset.toLocaleString() : 0,
                     (demand.offChainProperties.targetWhPerPeriod / 1000).toLocaleString(),
+                    demand.offChainProperties.maxPricePerMwh,
                     overallDemand
                 ];
             }
@@ -219,7 +221,7 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
             {
                 label: 'Total',
                 key: 'total',
-                colspan: 11
+                colspan: 12
             },
             generateFooter('Energy Demand (kWh)', true)
         ];
@@ -236,7 +238,8 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
             generateHeader('Consumption Coupling with Asset'),
             generateHeader('Min CO2 Offset'),
             generateHeader('Coupling Cap per Timeframe (kWh)'),
-            generateHeader('Energy Demand (kWh)'),
+            generateHeader('Max Price'),
+            generateHeader('Energy Demand (kWh)')
         ];
 
         return (

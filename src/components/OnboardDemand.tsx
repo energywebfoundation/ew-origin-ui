@@ -39,7 +39,7 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         const creationDemandProperties = {
             otherGreenAttributes: '',
             typeOfPublicSupport: '',
-            pricePerCertifiedWh: 0,
+            maxPricePerMwh: 0,
             assettype: AssetType.Wind,
             registryCompliance: Compliance.none,
             timeframe: TimeFrame.yearly,
@@ -82,7 +82,7 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
 
         const demandOffchainProps: Demand.IDemandOffChainProperties = {
             timeframe: transformedInput.timeframe,
-            pricePerCertifiedWh: creationDemandProperties.pricePerCertifiedWh,
+            maxPricePerMwh: creationDemandProperties.maxPricePerMwh,
             currency: creationDemandProperties.currency,
             otherGreenAttributes: creationDemandProperties.otherGreenAttributes,
             typeOfPublicSupport: creationDemandProperties.typeOfPublicSupport,

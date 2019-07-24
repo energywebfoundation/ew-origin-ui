@@ -418,7 +418,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
 
             const offChainProperties: Demand.IDemandOffChainProperties = {
                 timeframe: TimeFrame.yearly,
-                pricePerCertifiedWh: 0,
+                maxPricePerMwh: 0,
                 currency: Currency.USD,
                 productingAsset: certificate.assetId,
                 consumingAsset: 0,
