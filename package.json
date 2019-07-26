@@ -58,7 +58,7 @@
     "ew-erc-test-contracts": "0.3.0",
     "ew-asset-registry-lib": "1.0.3-alpha.11",
     "ew-market-lib": "energywebfoundation/ew-market-lib#26b5022f91a60095d1a38568ee1497ec475a5378",
-    "ew-market-matcher": "energywebfoundation/ew-market-matcher#efd386877c4e30a9b7c8c61fca48134465125854",
+    "ew-market-matcher": "energywebfoundation/ew-market-matcher#828b919c59de65458b86c760c1de9d0be6ca49de",
     "ew-user-registry-lib": "1.0.3-alpha.10",
     "ew-utils-general-lib": "1.0.2-alpha.4",
     "ew-origin-lib": "1.0.2-alpha.14",
