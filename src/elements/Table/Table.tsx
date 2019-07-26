@@ -488,6 +488,7 @@ export class Table extends React.Component<IProps, State> {
                                                         </div>
                                                     )}
                                                 {item.input.type === 'number' && (
+                                                    // TO-DO: Deprecate the use of input type number after POC
                                                     <div>
                                                         <input type="number"
                                                             onChange={handleInput(item.key)}

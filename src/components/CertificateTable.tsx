@@ -125,7 +125,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         await super.componentDidMount();
     }
 
-    async componentDidUpdate(newProps: ICertificateTableProps, prevState: ICertificatesState) {
+    async componentDidUpdate(newProps: ICertificateTableProps) {
         if (newProps.certificates !== this.props.certificates) {
             await this.loadPage(1);
         }
