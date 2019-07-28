@@ -12,7 +12,7 @@ import { showNotification, NotificationType } from '../../utils/notifications';
 import DatePicker from 'react-date-picker';
 
 interface IRequestIRECsModalProps {
-    conf: Configuration.Entity;
+    conf: any;
     producingAsset: ProducingAsset.Entity;
     showModal: boolean;
     callback: () => void;

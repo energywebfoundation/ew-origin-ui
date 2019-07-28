@@ -17,7 +17,7 @@
 import * as React from 'react';
 import { Button, DropdownButton, MenuItem, OverlayTrigger, Popover } from 'react-bootstrap';
 import Toggle from 'react-toggle';
-import DatePicker from 'react-date-picker';
+import Datepicker from 'react-datetime';
 import renderHTML from 'react-render-html';
 import moment from 'moment';
 import action from '../../../assets/action.svg';
@@ -220,7 +220,7 @@ export class Table extends React.Component<IProps, State> {
 
     handleDate = key => {
         return (date => {
-            const output = moment(date).format('DD MMM YY');
+            const output = moment(date).format('DD MMM YY HH:mm');
             this.setState({ [key]: date, ['date_' + key]: output });
             const newInputs = { ...this.state.inputs };
             newInputs[key] = moment(date).unix();
@@ -489,17 +489,7 @@ export class Table extends React.Component<IProps, State> {
                                                     )}
                                                 {item.input.type === 'date' && (
                                                     <div>
-                                                        <input
-                                                            className="Date"
-                                                            value={
-                                                                state['date_' + item.key] ||
-                                                                'Pick a date'
-                                                            }
-                                                        />
-                                                        <DatePicker
-                                                            onChange={handleDate(item.key)}
-                                                            value={state[item.key]}
-                                                        />
+                                                        <Datepicker onChange={handleDate(item.key)} />
                                                     </div>
                                                 )}
                                                 {item.input.type === 'select' && (

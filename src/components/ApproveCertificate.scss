@@ -1,0 +1,31 @@
+.CreateSupply {
+    &_input {
+        min-width: 400px;
+        background: #1f1f1f;
+        border: 1px solid #737373;
+        padding: 10px;
+        color: white;
+    }
+
+    &_button {
+        min-width: 400px;
+        background: #1f1f1f;
+        border: 1px solid #894ec5;
+        padding: 10px;
+        color: white;
+    }
+
+    &_wrapper {
+        text-align: center;
+    }
+
+    &_display {
+        min-width: 400px;
+        background: #1f1f1f;
+        border: 1px solid #737373;
+        padding: 10px;
+        color: white;
+        word-break: break-all;
+        white-space: pre;
+    }
+}

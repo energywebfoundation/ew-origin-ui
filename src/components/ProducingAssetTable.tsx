@@ -28,7 +28,7 @@ import { RequestIRECsModal } from '../elements/Modal/RequestIRECsModal';
 import { PaginatedLoader, IPaginatedLoaderState, DEFAULT_PAGE_SIZE } from '../elements/Table/PaginatedLoader';
 
 export interface ProducingAssetTableProps {
-    conf: Configuration.Entity;
+    conf: any;
     certificates: Certificate.Entity[];
     producingAssets: ProducingAsset.Entity[];
     currentUser: User;
@@ -195,10 +195,10 @@ export class ProducingAssetTable extends PaginatedLoader<ProducingAssetTableProp
                     producingAsset.id,
                     enrichedProducingAssetData.organizationName,
                     producingAsset.offChainProperties.facilityName,
-                    producingAsset.offChainProperties.city +
+                    producingAsset.offChainProperties.region +
                         ', ' +
                         producingAsset.offChainProperties.country,
-                    ProducingAsset.Type[producingAsset.offChainProperties.assetType],
+                    'Battery',
                     producingAsset.offChainProperties.capacityWh / 1000,
                     producingAsset.lastSmartMeterReadWh / 1000
                 ];
@@ -233,7 +233,7 @@ export class ProducingAssetTable extends PaginatedLoader<ProducingAssetTableProp
             generateHeader('#', 60),
             generateHeader('Owner'),
             generateHeader('Facility Name'),
-            generateHeader('Town, Country'),
+            generateHeader('Region, Country'),
             generateHeader('Type', 140),
             generateHeader('Nameplate Capacity (kW)', 125.45, true),
             generateHeader('Meter Read (kWh)', 135.89, true)
@@ -251,10 +251,6 @@ export class ProducingAssetTable extends PaginatedLoader<ProducingAssetTableProp
         const operations = [
             OPERATIONS.SHOW_DETAILS
         ];
-
-        if (this.props.currentUser && this.props.currentUser.isRole(Role.AssetManager)) {
-            operations.push(OPERATIONS.REQUEST_IRECS);
-        }
 
         return (
             <div className="ProductionWrapper">

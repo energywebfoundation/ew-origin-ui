@@ -21,7 +21,7 @@ import { BrowserRouter, Route, Link, NavLink, Redirect } from 'react-router-dom'
 
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
-import { Demand, Supply, Agreement } from 'ew-market-lib';
+import { Demand, Supply } from 'ew-market-lib';
 import { Configuration } from 'ew-utils-general-lib';
 
 import { OrganizationFilter } from './OrganizationFilter';
@@ -31,30 +31,28 @@ import { PageContent } from '../elements/PageContent/PageContent';
 import { DemandTable } from './DemandTable';
 
 import '../../assets/common.scss';
+import { SupplyTable } from './SupplyTable';
 
-export interface IDemandsProps {
+interface ISupplyProps {
     conf: any;
-    demands: Demand.Entity[];
-    agreements: Agreement.Entity[];
     supplies: Supply.Entity[];
     producingAssets: ProducingAsset.Entity[];
-    consumingAssets: ConsumingAsset.Entity[];
     currentUser: User;
     baseUrl: string;
 }
 
-export interface IDemandState {
+interface ISupplyState {
     switchedToOrganization: boolean;
 }
 
-export class Demands extends React.Component<IDemandsProps, IDemandState> {
+export class Supplies extends React.Component<ISupplyProps, ISupplyState> {
     constructor(props) {
         super(props);
 
         this.state = { switchedToOrganization: false };
 
         this.onFilterOrganization = this.onFilterOrganization.bind(this);
-        this.DemandTable = this.DemandTable.bind(this);
+        this.SupplyTable = this.SupplyTable.bind(this);
     }
 
     onFilterOrganization(index: number) {
@@ -63,18 +61,15 @@ export class Demands extends React.Component<IDemandsProps, IDemandState> {
         });
     }
 
-    DemandTable() {
+    SupplyTable() {
         return (
-            <DemandTable
+            <SupplyTable
                 conf={this.props.conf}
                 producingAssets={this.props.producingAssets}
                 currentUser={this.props.currentUser}
-                demands={this.props.demands}
-                consumingAssets={this.props.consumingAssets}
+                supplies={this.props.supplies}
                 switchedToOrganization={this.state.switchedToOrganization}
                 baseUrl={this.props.baseUrl}
-                agreements={this.props.agreements}
-                supplies={this.props.supplies}
             />
         );
     }
@@ -85,9 +80,9 @@ export class Demands extends React.Component<IDemandsProps, IDemandState> {
             : ['All Organizations'];
 
         const DemandsMenu = {
-            key: 'demands',
-            label: 'Demands',
-            component: this.DemandTable,
+            key: 'supplies',
+            label: 'Supplies',
+            component: this.SupplyTable,
             buttons: [
                 // {
                 //     type: 'date-range',
@@ -110,7 +105,7 @@ export class Demands extends React.Component<IDemandsProps, IDemandState> {
                 <PageContent
                     onFilterOrganization={this.onFilterOrganization}
                     menu={DemandsMenu}
-                    redirectPath={'/' + this.props.baseUrl + '/demands'}
+                    redirectPath={'/' + this.props.baseUrl + '/supplies'}
                 />
             </div>
         );

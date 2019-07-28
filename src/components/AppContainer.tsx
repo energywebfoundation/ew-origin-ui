@@ -23,7 +23,9 @@ import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { Configuration, ContractEventHandler, EventHandlerManager } from 'ew-utils-general-lib';
 import {
     Demand,
-    createBlockchainProperties as marketCreateBlockchainProperties
+    createBlockchainProperties as marketCreateBlockchainProperties,
+    Supply,
+    Agreement
 } from 'ew-market-lib';
 import { Certificate, createBlockchainProperties } from 'ew-origin-lib';
 import { User } from 'ew-user-registry-lib';
@@ -38,6 +40,7 @@ import './AppContainer.scss';
 import { Demands } from './Demands';
 import { AccountChangedModal } from '../elements/Modal/AccountChangedModal';
 import axios from 'axios';
+import { Supplies } from './Supplies';
 
 export const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3030';
 
@@ -57,11 +60,12 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
 
         this.CertificateTable = this.CertificateTable.bind(this);
         this.DemandTable = this.DemandTable.bind(this);
+        this.SupplyTable = this.SupplyTable.bind(this);
         this.Admin = this.Admin.bind(this);
         this.Asset = this.Asset.bind(this);
     }
 
-    async initEventHandler(conf: Configuration.Entity): Promise<void> {
+    async initEventHandler(conf: any): Promise<void> {
         const currentBlockNumber: number = await conf.blockchainProperties.web3.eth.getBlockNumber();
         const certificateContractEventHandler: ContractEventHandler = new ContractEventHandler(
             conf.blockchainProperties.certificateLogicInstance,
@@ -156,7 +160,7 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
         return marketBlockchainProperties.marketLogicInstance;
     }
 
-    async initConf(originIssuerContractLookupAddress: string): Promise<Configuration.Entity> {
+    async initConf(originIssuerContractLookupAddress: string): Promise<any> {
         let web3: any = null;
         const params: any = queryString.parse(this.props.location.search);
 
@@ -200,7 +204,7 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
     }
 
     async componentDidMount(): Promise<void> {
-        const conf: Configuration.Entity = await this.initConf(
+        const conf: any = await this.initConf(
             this.props.match.params.contractAddress
         );
         this.props.actions.configurationUpdated(conf);
@@ -209,10 +213,12 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
         const currentUser: User =
             accounts.length > 0 ? await new User(accounts[0], conf as any).sync() : null;
 
+        // @ts-ignore
         (await ProducingAsset.getAllAssets(conf)).forEach((p: ProducingAsset.Entity) =>
             this.props.actions.producingAssetCreatedOrUpdated(p)
         );
 
+        // @ts-ignore
         (await ConsumingAsset.getAllAssets(conf)).forEach((c: ConsumingAsset.Entity) =>
             this.props.actions.consumingAssetCreatedOrUpdated(c)
         );
@@ -221,6 +227,15 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
             if (!isDemandDeleted(d)) {
                 this.props.actions.demandCreatedOrUpdated(d);
             }
+        });
+
+        (await Supply.getAllSupplies(conf)).forEach((d: Supply.Entity) => {
+            this.props.actions.supplyCreatedOrUpdated(d);
+        });
+
+        (await Agreement.getAllAgreements(conf)).forEach((d: Agreement.Entity) => {
+            console.log('Appcontainer agreementCreatedOrUpdated', d);
+            this.props.actions.agreementCreatedOrUpdated(d);
         });
 
         (await Certificate.getActiveCertificates(conf)).forEach((certificate: Certificate.Entity) =>
@@ -270,6 +285,20 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
                 producingAssets={this.props.producingAssets}
                 currentUser={this.props.currentUser}
                 baseUrl={this.props.match.params.contractAddress}
+                supplies={this.props.supplies}
+                agreements={this.props.agreements}
+            />
+        );
+    }
+
+    SupplyTable() {
+        return (
+            <Supplies
+                conf={this.props.configuration}
+                supplies={this.props.supplies}
+                producingAssets={this.props.producingAssets}
+                currentUser={this.props.currentUser}
+                baseUrl={this.props.match.params.contractAddress}
             />
         );
     }
@@ -281,6 +310,9 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
                 currentUser={this.props.currentUser}
                 producingAssets={this.props.producingAssets}
                 baseUrl={this.props.match.params.contractAddress}
+                certificates={this.props.certificates}
+                supplies={this.props.supplies}
+                agreements={this.props.agreements}
             />
         );
     }
@@ -319,6 +351,11 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
                         path={`/${contractAddress}/demands/`}
                         component={this.DemandTable}
                     />
+                    <Route
+                        path={`/${contractAddress}/supplies/`}
+                        component={this.SupplyTable}
+                    />
+
 
                     {/* <Route path={`/${contractAddress}/legal/`'} component={Legal} />
                     <Route path={`/${contractAddress}/about/`} component={About} /> */}

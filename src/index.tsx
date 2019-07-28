@@ -36,7 +36,9 @@ import {
     demandDeleted,
     producingAssetCreatedOrUpdated,
     certificateCreatedOrUpdated,
-    consumingAssetCreatedOrUpdated
+    consumingAssetCreatedOrUpdated,
+    supplyCreatedOrUpdated,
+    agreementCreatedOrUpdated
  } from './features/actions';
 
 const IS_PRODUCTION = process.env.MODE === 'production';
@@ -68,6 +70,8 @@ const mapDispatchToProps = dispatch => ({
             currentUserUpdated,
             configurationUpdated,
             demandCreatedOrUpdated,
+            supplyCreatedOrUpdated,
+            agreementCreatedOrUpdated,
             demandDeleted,
             producingAssetCreatedOrUpdated,
             certificateCreatedOrUpdated,

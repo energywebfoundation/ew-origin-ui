@@ -23,7 +23,6 @@ import { ProducingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
 import { Demand } from 'ew-market-lib';
 import { Configuration, TimeFrame, Currency } from 'ew-utils-general-lib';
-import { MatcherLogic } from 'ew-market-matcher';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
@@ -34,7 +33,7 @@ import { Erc20TestToken } from 'ew-erc-test-contracts';
 import { PaginatedLoader, DEFAULT_PAGE_SIZE, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
 export interface ICertificateTableProps {
-    conf: Configuration.Entity;
+    conf: any;
     certificates: Certificate.Entity[];
     producingAssets: ProducingAsset.Entity[];
     currentUser: User;
@@ -117,14 +116,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         this.hideBuyModal = this.hideBuyModal.bind(this);
     }
 
-    async componentDidMount() {
-        await super.componentDidMount();        
-
-        if (this.props.selectedState === SelectedState.ForDemand && this.props.demand) {
-            await this.initMatchingCertificates(this.props.demand);
-        }
-    }
-
     async componentDidUpdate(newProps: ICertificateTableProps) {
         if (newProps.certificates !== this.props.certificates) {
             await this.loadPage(1);
@@ -167,14 +158,12 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
 
                 const certificateDataToShow = [
                     certificate.id,
-                    ProducingAsset.Type[
-                        EnrichedCertificateData.producingAsset.offChainProperties.assetType
-                    ],
+                    'Battery',
                     moment(
                         EnrichedCertificateData.producingAsset.offChainProperties.operationalSince *
                             1000
                     ,   'x').format('MMM YY'),
-                    `${EnrichedCertificateData.producingAsset.offChainProperties.city}, ${
+                    `${EnrichedCertificateData.producingAsset.offChainProperties.region}, ${
                         EnrichedCertificateData.producingAsset.offChainProperties.country
                     }`,
                     ProducingAsset.Compliance[
@@ -241,12 +230,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         }
 
         return enrichedData;
-    }
-
-    async initMatchingCertificates(demand: Demand.Entity) {
-        const matchedCertificates: Certificate.Entity[] = await MatcherLogic.findMatchingCertificatesForDemand(demand, this.props.conf, this.props.certificates);
-
-        this.setState({ matchedCertificates });
     }
 
     async getTokenSymbol(certificate) {
@@ -412,6 +395,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             if (!asset) {
                 asset = await new ProducingAsset.Entity(
                     certificate.assetId.toString(),
+                    // @ts-ignore
                     this.props.conf
                 ).sync();
             }
@@ -511,7 +495,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             generateHeader('#', 60),
             generateHeader('Asset Type'),
             generateHeader('Commissioning Date'),
-            generateHeader('Town, Country'),
+            generateHeader('Region, Country'),
             // generateHeader('Max Capacity (kWh)', defaultWidth, true),
             generateHeader('Compliance'),
             generateHeader('Owner'),
@@ -534,27 +518,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         ];
 
         const operations = [];
-
-        switch (this.props.selectedState) {
-            case SelectedState.Inbox:
-                operations.push(
-                    OPERATIONS.CLAIM,
-                    OPERATIONS.PUBLISH_FOR_SALE
-                );
-                break;
-            case SelectedState.ForSale:
-                operations.push(
-                    OPERATIONS.BUY,
-                    OPERATIONS.RETURN_TO_INBOX
-                );
-                break;
-            case SelectedState.Claimed:
-                operations.push(OPERATIONS.SHOW_CLAIMING_TX);
-                break;
-            case SelectedState.ForDemand:
-                operations.push(OPERATIONS.BUY);
-                break;
-        }
 
         operations.push(
             OPERATIONS.SHOW_CREATION_TX,

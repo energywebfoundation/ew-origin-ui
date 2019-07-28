@@ -30,7 +30,7 @@ import { CertificateDetailView } from './CertificateDetailView';
 import { CertificationRequestsTable } from './CertificationRequestsTable';
 
 export interface ICertificatesProps {
-    conf: Configuration.Entity;
+    conf: any;
     certificates: Certificate.Entity[];
     producingAssets: ProducingAsset.Entity[];
     demands: Demand.Entity[];
@@ -163,57 +163,17 @@ export class Certificates extends React.Component<ICertificatesProps, ICertifica
                 show: !isIssuer
             },
             {
-                key: 'for_sale',
-                label: 'For Sale',
-                component: this.ForSaleCertificates,
-                buttons: [
-                    {
-                        type: 'dropdown',
-                        label: allOrganizationsText,
-                        face: ['filter', 'icon'],
-                        content: organizations
-                    }
-                ],
-                show: !isIssuer
-            },
-            {
-                key: 'claims_report',
-                label: 'Claims Report',
-                component: this.ClaimedCertificates,
-                buttons: [
-                    {
-                        type: 'dropdown',
-                        label: allOrganizationsText,
-                        face: ['filter', 'icon'],
-                        content: organizations
-                    }
-                ],
-                show: !isIssuer
-            },
-            {
                 key: 'detail_view',
                 label: 'Detail View',
                 component: null,
                 show: !isIssuer
             },
             {
-                key: 'pending',
-                label: 'Pending',
-                component: this.PendingCertificationRequests,
-                show: true
-            },
-            {
-                key: 'approved',
-                label: 'Approved',
-                component: this.ApprovedCertificationRequests,
-                show: isIssuer
-            },
-            {
                 key: 'for_demand',
                 label: 'For Demand',
                 component: null,
                 show: false
-            },
+            }
         ];
 
         const defaultRedirect = {

@@ -16,7 +16,7 @@ interface IValidation {
 }
 
 interface BuyCertificateModalProps {
-    conf: Configuration.Entity;
+    conf: any;
     producingAsset: ProducingAsset.Entity;
     certificate: Certificate.Entity;
     showModal: boolean;

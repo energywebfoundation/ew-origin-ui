@@ -17,7 +17,7 @@ interface IValidation {
 }
 
 interface IPublishForSaleModalProps {
-    conf: Configuration.Entity;
+    conf: any;
     certificate: Certificate.Entity;
     producingAsset: ProducingAsset.Entity;
     showModal: boolean;

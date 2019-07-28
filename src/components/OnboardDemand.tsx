@@ -24,7 +24,7 @@ import { Demand } from 'ew-market-lib';
 import { showNotification, NotificationType } from '../utils/notifications';
 
 export interface IOnboardDemandProps {
-    configuration: Configuration.Entity;
+    configuration: any;
     currentUser: User;
     producingAssets: ProducingAsset.Entity[];
 }
@@ -48,24 +48,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
 
         const transformedInput = { ...input };
 
-        if (typeof(transformedInput.timeframe) !== 'undefined') {
-            transformedInput.timeframe = TimeFrame[transformedInput.timeframe];
-        }
-
-        if (typeof(transformedInput.assettype) !== 'undefined') {
-            transformedInput.assettype = AssetType[transformedInput.assettype];
-        }
-
-        if (typeof(transformedInput.consumingAsset) !== 'undefined') {
-            transformedInput.consumingAsset = parseInt(transformedInput.consumingAsset, 10);
-        }
-        if (typeof(transformedInput.minCO2Offset) !== 'undefined') {
-            transformedInput.minCO2Offset = parseInt(transformedInput.minCO2Offset, 10);
-        }
-        if (typeof(transformedInput.productingAsset) !== 'undefined') {
-            transformedInput.productingAsset = parseInt(transformedInput.productingAsset, 10);
-        }
-
         if (typeof(transformedInput.targetWhPerPeriod) !== 'undefined') {
             transformedInput.targetWhPerPeriod = parseInt(transformedInput.targetWhPerPeriod, 10);
         }
@@ -81,7 +63,7 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
         }
 
         const demandOffchainProps: Demand.IDemandOffChainProperties = {
-            timeframe: transformedInput.timeframe,
+            timeframe: creationDemandProperties.timeframe,
             pricePerCertifiedWh: creationDemandProperties.pricePerCertifiedWh,
             currency: creationDemandProperties.currency,
             otherGreenAttributes: creationDemandProperties.otherGreenAttributes,
@@ -89,35 +71,16 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
             targetWhPerPeriod: transformedInput.targetWhPerPeriod,
             registryCompliance: creationDemandProperties.registryCompliance,
             startTime: transformedInput.startTime || '',
-            endTime: transformedInput.endTime || ''
+            endTime: transformedInput.endTime || '',
+            locationCountry: '',
+            assettype: AssetType.Wind,
+            consumingAsset: 0,
+            locationRegion: '',
+            minCO2Offset: 0
         };
-
-        if (typeof transformedInput.productingAsset !== 'undefined') {
-            demandOffchainProps.productingAsset = transformedInput.productingAsset;
-        }
-
-        if (typeof transformedInput.consumingAsset !== 'undefined') {
-            demandOffchainProps.consumingAsset = transformedInput.consumingAsset;
-        }
-
-        if (typeof transformedInput.assettype !== 'undefined') {
-            demandOffchainProps.assettype = transformedInput.assettype;
-        }
-
-        if (typeof transformedInput.minCO2Offset !== 'undefined') {
-            demandOffchainProps.minCO2Offset = transformedInput.minCO2Offset;
-        }
-
-        if (typeof transformedInput.locationCountry !== 'undefined') {
-            demandOffchainProps.locationCountry = transformedInput.locationCountry;
-        }
 
         if (typeof transformedInput.locationRegion !== 'undefined') {
             demandOffchainProps.locationRegion = transformedInput.locationRegion;
-        }
-
-        if (typeof(transformedInput.registryCompliance) !== 'undefined') {
-            demandOffchainProps.registryCompliance = Compliance[transformedInput.registryCompliance] as any as Compliance;
         }
 
         const demandProps: Demand.IDemandOnChainProperties = {
@@ -148,21 +111,12 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
             {
                 data: [
                     {
-                        label: 'Cap per Timeframe (kWh)',
+                        label: 'Power in kW',
                         key: 'targetWhPerPeriod',
                         toggle: { hide: true, description: '' },
                         input: { type: 'text' }
                     },
 
-                    {
-                        label: 'Timeframe',
-                        key: 'timeframe',
-                        toggle: { hide: true, description: '' },
-                        input: {
-                            type: 'select',
-                            data: 'timeframes'
-                        }
-                    },
                     {
                         label: 'Start Date',
                         key: 'startTime',
@@ -174,30 +128,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                         key: 'endTime',
                         toggle: { hide: true, description: '' },
                         input: { type: 'date' }
-                    },
-                    {
-                        label: 'Total Demand (kWh)',
-                        key: 'totalDemand',
-                        toggle: { hide: true, description: '' },
-                        input: { type: 'text' }
-                    }
-                ]
-            },
-            {
-                header: 'Criteria'
-            },
-            {
-                data: [
-                    {
-                        label: 'Min CO2 Offset',
-                        key: 'minCO2Offset',
-
-                        toggle: {
-                            label: 'All',
-                            index: 5,
-                            description: 'Only if the CO2 saved is above'
-                        },
-                        input: { type: 'text' }
                     }
                 ]
             },
@@ -206,19 +136,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
             },
             {
                 data: [
-                    {
-                        label: 'Country',
-                        key: 'locationCountry',
-                        toggle: {
-                            index: 3,
-                            label: 'All',
-                            description: 'Only this Country',
-                            default: false
-                        },
-                        input: {
-                            type: 'text'
-                        }
-                    },
                     {
                         label: 'Region',
                         key: 'locationRegion',
@@ -230,70 +147,6 @@ export class OnboardDemand extends React.Component<IOnboardDemandProps, {}> {
                         input: {
                             type: 'text'
                         }
-                    }
-                ]
-            },
-            {
-                header: 'Type'
-            },
-            {
-                data: [
-                    {
-                        label: 'Asset Type',
-                        key: 'assettype',
-                        toggle: {
-                            label: 'All',
-                            index: 1,
-                            description: 'Only this Asset Type'
-                        },
-                        input: {
-                            type: 'select',
-                            data: 'assetTypes'
-                        }
-                    },
-                    {
-                        label: 'Compliance',
-                        key: 'registryCompliance',
-                        toggle: {
-                            index: 2,
-                            label: 'All',
-                            description: 'Only if compliant to'
-                        },
-                        input: {
-                            type: 'select',
-                            data: 'compliances'
-                        }
-                    }
-                ]
-            },
-            {
-                header: 'Consumption'
-            },
-            {
-                data: [
-                    {
-                        label: 'Coupled to Production Asset',
-                        key: 'productingAsset',
-                        toggle: {
-                            label: 'No',
-                            index: 6,
-                            description: 'Yes, coupled to this producing Asset',
-                            default: false,
-                            key: 'consumptionKey1'
-                        },
-                        input: { type: 'text' }
-                    },
-                    {
-                        label: 'Coupled to Consumption',
-                        key: 'consumingAsset',
-                        toggle: {
-                            label: 'No',
-                            index: 7,
-                            description: 'Yes, coupled to this consumption address',
-                            default: false,
-                            key: 'consumptionKey1'
-                        },
-                        input: { type: 'text' }
                     }
                 ]
             },

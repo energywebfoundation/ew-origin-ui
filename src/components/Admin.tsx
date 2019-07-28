@@ -21,14 +21,21 @@ import { NavLink, Redirect, Route } from 'react-router-dom';
 
 import { PageContent } from '../elements/PageContent/PageContent';
 import { OnboardDemand } from './OnboardDemand';
+import { CreateSupply } from './CreateSupply';
+import { CreateAgreement } from './CreateAgreement';
 import { User } from 'ew-user-registry-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
-import { Configuration } from 'ew-utils-general-lib';
+import { ApproveCertificate } from './ApproveCertificate';
+import { Certificate } from 'ew-origin-lib';
+import { Supply, Agreement } from 'ew-market-lib';
 
 export interface AdminProps {
-    conf: Configuration.Entity;
+    conf: any;
     currentUser: User;
     producingAssets: ProducingAsset.Entity[];
+    certificates: Certificate.Entity[];
+    supplies: Supply.Entity[];
+    agreements: Agreement.Entity[];
     baseUrl: string;
 }
 
@@ -36,6 +43,9 @@ export class Admin extends React.Component<AdminProps, {}> {
     constructor(props) {
         super(props);
         this.OnboardDemand = this.OnboardDemand.bind(this);
+        this.CreateSupply = this.CreateSupply.bind(this);
+        this.CreateAgreement = this.CreateAgreement.bind(this);
+        this.ApproveCertificate = this.ApproveCertificate.bind(this);
     }
 
     OnboardDemand() {
@@ -48,22 +58,61 @@ export class Admin extends React.Component<AdminProps, {}> {
         );
     }
 
+    CreateSupply() {
+        return (
+            <CreateSupply
+                configuration={this.props.conf}
+                currentUser={this.props.currentUser}
+                producingAssets={this.props.producingAssets}
+            />
+        );
+    }
+
+    CreateAgreement() {
+        return (
+            <CreateAgreement
+                configuration={this.props.conf}
+                currentUser={this.props.currentUser}
+                producingAssets={this.props.producingAssets}
+            />
+        );
+    }
+
+    ApproveCertificate() {
+        return (
+            <ApproveCertificate
+                conf={this.props.conf}
+                currentUser={this.props.currentUser}
+                producingAssets={this.props.producingAssets}
+                certificates={this.props.certificates}
+                baseUrl={this.props.baseUrl}
+                supplies={this.props.supplies}
+                agreements={this.props.agreements}
+            />
+        );
+    }
+
     render() {
         const AdminMenu = [
             {
                 key: 'onboard_demand',
-                label: 'Onboard demand',
+                label: 'Create Demand',
                 component: this.OnboardDemand
             },
             {
-                key: 'onboard_user',
-                label: 'Onboard user',
-                component: null
+                key: 'create_supply',
+                label: 'Create Supply',
+                component: this.CreateSupply
             },
             {
-                key: 'onborad_assets',
-                label: 'Onboard assets',
-                component: null
+                key: 'create_agreement',
+                label: 'Create Agreement',
+                component: this.CreateAgreement
+            },
+            {
+                key: 'approve_certificate',
+                label: 'Approve Certificate',
+                component: this.ApproveCertificate
             }
         ];
 

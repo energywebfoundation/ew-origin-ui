@@ -151,7 +151,7 @@ const deployDemo = async () => {
     const certificateLogic = new CertificateLogic(web3, deployResult.certificateLogic);
     const marketLogic = new MarketLogic(web3, deployResult.marketLogic);
 
-    const conf: Configuration.Entity = {
+    const conf: any = {
         blockchainProperties: {
             activeUser: {
                 address: ACCOUNTS.ADMIN.address,

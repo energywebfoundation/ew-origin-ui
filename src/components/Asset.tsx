@@ -29,7 +29,7 @@ import { Demand } from 'ew-market-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 
 export interface AssetProps {
-    conf: Configuration.Entity;
+    conf: any;
     certificates: Certificate.Entity[];
     producingAssets: ProducingAsset.Entity[];
     consumingAssets: ConsumingAsset.Entity[];

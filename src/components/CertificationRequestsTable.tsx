@@ -11,7 +11,7 @@ import { showNotification, NotificationType } from '../utils/notifications';
 import { PaginatedLoader, IPaginatedLoaderState, DEFAULT_PAGE_SIZE, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
 interface ICertificateTableProps {
-    conf: Configuration.Entity;
+    conf: any;
     producingAssets: ProducingAsset.Entity[];
     currentUser: User;
     approvedOnly?: boolean;
@@ -80,7 +80,7 @@ export class CertificationRequestsTable extends PaginatedLoader<ICertificateTabl
                 asset.offChainProperties.city +
                         ', ' +
                         asset.offChainProperties.country,
-                ProducingAsset.Type[asset.offChainProperties.assetType],
+                'Battery',
                 asset.offChainProperties.capacityWh / 1000,
                 energy / 1000
             ]);

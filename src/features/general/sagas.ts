@@ -9,7 +9,7 @@ import { getAccountChangedModalVisible, getAccountChangedModalEnabled } from './
 function* showAccountChangedModalOnChange(): SagaIterator {
   while (true) {
     yield take(Actions.currentUserUpdated);
-    const conf: Configuration.Entity = yield select(getConfiguration);
+    const conf: any = yield select(getConfiguration);
     const initialAccounts: string[] = yield call(conf.blockchainProperties.web3.eth.getAccounts);
 
     while (true) {

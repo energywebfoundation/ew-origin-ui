@@ -15,7 +15,7 @@
 // @authors: slock.it GmbH; Heiko Burkhardt, heiko.burkhardt@slock.it; Martin Kuechler, martin.kuchler@slock.it
 
 import { Certificate } from 'ew-origin-lib';
-import { Demand } from 'ew-market-lib';
+import { Demand, Supply, Agreement } from 'ew-market-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
 import { Configuration } from 'ew-utils-general-lib';
@@ -23,6 +23,8 @@ import { Configuration } from 'ew-utils-general-lib';
 export enum Actions {
     certificateCreatedOrUpdated = 'CERTIFICATE_CREATED_OR_UPDATED',
     demandCreatedOrUpdated = 'DEMAND_CREATED_OR_UPDATED',
+    supplyCreatedOrUpdated = 'SUPPLY_CREATED_OR_UPDATED',
+    agreementCreatedOrUpdated = 'AGREEMENT_CREATED_OR_UPDATED',
     demandDeleted = 'DEMAND_DELETED',
     producingAssetCreatedOrUpdated = 'PRODUCING_ASSET_CREATED_OR_UPDATED',
     consumingAssetCreatedOrUpdated = 'CONSUMING_ASSET_CREATED_OR_UPDATED',
@@ -38,6 +40,16 @@ export const certificateCreatedOrUpdated = (certificate: Certificate.Entity): an
 export const demandCreatedOrUpdated = (demand: Demand.Entity) => ({
     type: Actions.demandCreatedOrUpdated,
     demand
+});
+
+export const supplyCreatedOrUpdated = (supply: Supply.Entity) => ({
+    type: Actions.supplyCreatedOrUpdated,
+    supply
+});
+
+export const agreementCreatedOrUpdated = (agreement: Agreement.Entity) => ({
+    type: Actions.agreementCreatedOrUpdated,
+    agreement
 });
 
 export const demandDeleted = (demand: Demand.Entity) => ({
@@ -60,7 +72,7 @@ export const currentUserUpdated = (user: User): any => ({
     user
 });
 
-export const configurationUpdated = (conf: Configuration.Entity): any => ({
+export const configurationUpdated = (conf: any): any => ({
     type: Actions.configurationUpdated,
     conf
 });

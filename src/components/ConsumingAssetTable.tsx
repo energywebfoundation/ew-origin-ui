@@ -26,7 +26,7 @@ import { ConsumingAsset } from 'ew-asset-registry-lib';
 import { IPaginatedLoaderState, PaginatedLoader, DEFAULT_PAGE_SIZE } from '../elements/Table/PaginatedLoader';
 
 export interface ConsumingAssetTableProps {
-    conf: Configuration.Entity;
+    conf: any;
     consumingAssets: ConsumingAsset.Entity[];
     demands: Demand.Entity[];
     certificates: Certificate.Entity[];

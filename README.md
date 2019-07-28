@@ -11,3 +11,25 @@ Afterward, the webpage can be accessed with `localhost:3000/COO-CONTRACT_ADDRESS
 
 ### Web3-object
 In order to use the UI and Origin, you need a web3-provider. We recommend [MetaMask](https://metamask.io). Make sure your MetaMask extension is pointed to `localhost:8545`.
+
+### Pilot instructions
+
+1. Create a supply
+    * In UI go to *Admin > Create Supply* section
+    * Signed in as Sonnen asset owner
+2. Create a demand
+    * In UI go to *Admin > Create Demand* section
+    * Signed in as E.DIS trader
+3. Create an agreement
+    * In UI go to *Admin > Create Agreement* section
+    * Signed in as E.DIS trader
+    * You can get IDs for supply and demand by going to *Demands*, *Supplies* sections in UI
+4. Save smart meter reading
+    * Call saveSmartMeterRead() function programatically
+    * Signed in as Smart meter
+5. Approve certificate
+    * In UI go to *Admin > Approve Certificate*
+    * *Get Reported Flexibility* returns `false` under `Report Confirmed`
+    * *Approve Certificate*
+    * Signed in as E.DIS trader
+    * *Get Reported Flexibility* now returns `true` under `Report Confirmed`

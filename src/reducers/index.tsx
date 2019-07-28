@@ -18,9 +18,11 @@ import certificates from './Certificates';
 import producingAssets from './ProducingAsset';
 import consumingAssets from './ConsumingAsset';
 import demands from './Demand';
+import supplies from './Supply';
 import configuration from './Configuration';
 import currentUser from './User';
 import general from '../features/general/reducer';
+import agreements from './Agreement';
 import { combineReducers } from 'redux';
 import { IStoreState } from '../types';
 
@@ -29,6 +31,8 @@ const reducers = combineReducers<IStoreState>({
     producingAssets,
     consumingAssets,
     demands,
+    supplies,
+    agreements,
     general,
     currentUser,
     configuration

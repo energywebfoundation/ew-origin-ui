@@ -21,7 +21,7 @@ import { Redirect } from 'react-router-dom';
 import { Configuration, TimeFrame, Compliance, AssetType } from 'ew-utils-general-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
-import { Demand } from 'ew-market-lib';
+import { Demand, Agreement, Supply } from 'ew-market-lib';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
@@ -30,13 +30,15 @@ import { deleteDemand } from 'ew-market-lib/dist/js/src/blockchain-facade/Demand
 import { IPaginatedLoaderState, PaginatedLoader, DEFAULT_PAGE_SIZE, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
 export interface IDemandTableProps {
-    conf: Configuration.Entity;
+    conf: any;
     demands: Demand.Entity[];
     producingAssets: ProducingAsset.Entity[];
     consumingAssets: ConsumingAsset.Entity[];
+    agreements: Agreement.Entity[];
     currentUser: User;
     switchedToOrganization: boolean;
     baseUrl: string;
+    supplies: Supply.Entity[];
 }
 
 export interface IDemandTableState extends IPaginatedLoaderState {
@@ -56,8 +58,7 @@ export const PeriodToSeconds = [31536000, 2592000, 86400, 3600];
 const NO_VALUE_TEXT = 'any';
 
 enum OPERATIONS {
-    DELETE = 'Delete',
-    SUPPLIES = 'Show supplies for demand'
+    
 }
 
 export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTableState> {
@@ -130,12 +131,6 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
 
     async operationClicked(key: string, id: number) {
         switch (key) {
-            case OPERATIONS.DELETE:
-                this.deleteDemand(id);
-                break;
-            case OPERATIONS.SUPPLIES:
-                this.showMatchingSupply(id);
-                break;
             default:
         }
     }
@@ -168,25 +163,41 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
 
         const data = enrichedData.map(
             (enrichedDemandData: IEnrichedDemandData) => {
+                let supply : Supply.Entity;
                 const demand = enrichedDemandData.demand;
-                const overallDemand = Math.ceil(
-                    (parseInt(demand.offChainProperties.endTime, 10) - parseInt(demand.offChainProperties.startTime, 10)) / PeriodToSeconds[demand.offChainProperties.timeframe] / 1000)
-                        * (demand.offChainProperties.targetWhPerPeriod / 1000);
+
+                const agreement = this.props.agreements.find(a => {
+                    return a.demandId.toString() === enrichedDemandData.demand.id.toString()
+                });
+    
+                if (agreement) {
+                    supply = this.props.supplies.find(s => {
+                        return s.id.toString() === agreement.supplyId.toString()
+                    });
+                }
+
+                console.log('supply, ', {
+                    supply
+                }, this.props.agreements, this.props.supplies);
+
+                let matchedPower = 0;
+
+                if (supply) {
+                    if (supply.matchedPower > 0) {
+                        matchedPower = supply.matchedPower / 1000
+                    } else {
+                        matchedPower = supply.matchedPower;
+                    }
+                }
 
                 return [
                     demand.id,
                     enrichedDemandData.demandOwner.organization,
-                    (moment(demand.offChainProperties.startTime, 'x')).format('DD MMM YY') + ' - ' +
-                        (moment(demand.offChainProperties.endTime, 'x')).format('DD MMM YY'),
+                    (moment(demand.offChainProperties.startTime, 'x')).format('DD MMM YY HH:mm') + ' - ' +
+                        (moment(demand.offChainProperties.endTime, 'x')).format('DD MMM YY HH:mm'),
                     this.getCountryRegionText(demand),
-                    typeof(demand.offChainProperties.assettype) !== 'undefined' ? AssetType[demand.offChainProperties.assettype] : NO_VALUE_TEXT,
-                    typeof(demand.offChainProperties.registryCompliance) !== 'undefined' ? Compliance[demand.offChainProperties.registryCompliance] : NO_VALUE_TEXT,
-                    typeof(demand.offChainProperties.timeframe) !== 'undefined' ? TimeFrame[demand.offChainProperties.timeframe] : NO_VALUE_TEXT,
-                    typeof(demand.offChainProperties.productingAsset) !== 'undefined' ? demand.offChainProperties.productingAsset : NO_VALUE_TEXT,
-                    typeof(demand.offChainProperties.consumingAsset) !== 'undefined' ? demand.offChainProperties.consumingAsset : NO_VALUE_TEXT,
-                    typeof(demand.offChainProperties.minCO2Offset) !== 'undefined' ? demand.offChainProperties.minCO2Offset.toLocaleString() : 0,
-                    (demand.offChainProperties.targetWhPerPeriod / 1000).toLocaleString(),
-                    overallDemand
+                    matchedPower,
+                    (demand.offChainProperties.targetWhPerPeriod / 1000).toLocaleString()
                 ];
             }
         ).slice(offset, offset + pageSize);
@@ -198,7 +209,15 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
     }
 
     async componentDidUpdate(prevProps) {
-        if (prevProps.demands.length !== this.props.demands.length) {
+        if (prevProps.demands.length !== this.props.demands.length
+            || prevProps.supplies.length !== this.props.supplies.length
+            || prevProps.agreements.length !== this.props.agreements.length
+        ) {
+            console.log('component did update', 
+                `Demands: ${prevProps.demands.length} vs ${this.props.demands.length}`,
+                `Supply: ${prevProps.supplies.length} vs ${this.props.supplies.length}`,
+                `Agreements: ${prevProps.agreements.length} vs ${this.props.agreements.length}`,
+            );
             this.loadPage(1);
         }
     }
@@ -219,9 +238,9 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
             {
                 label: 'Total',
                 key: 'total',
-                colspan: 11
+                colspan: 5
             },
-            generateFooter('Energy Demand (kWh)', true)
+            generateFooter('Power (kWh)', true)
         ];
 
         const TableHeader = [
@@ -229,14 +248,8 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
             generateHeader('Buyer'),
             generateHeader('Start/End-Date'),
             generateHeader('Country,<br/>Region'),
-            generateHeader('Asset Type'),
-            generateHeader('Compliance'),
-            generateHeader('Coupling Timeframe'),
-            generateHeader('Production Coupling with Asset'),
-            generateHeader('Consumption Coupling with Asset'),
-            generateHeader('Min CO2 Offset'),
-            generateHeader('Coupling Cap per Timeframe (kWh)'),
-            generateHeader('Energy Demand (kWh)'),
+            generateHeader('Matched Power (kW)'),
+            generateHeader('Power (kW)'),
         ];
 
         return (

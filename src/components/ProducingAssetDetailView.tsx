@@ -33,7 +33,7 @@ import { ProducingAsset } from 'ew-asset-registry-lib';
 import { MapContainer } from './MapContainer';
 
 export interface DetailViewProps {
-    conf: Configuration.Entity;
+    conf: any;
     id: number;
     baseUrl: string;
     certificates: Certificate.Entity[];
@@ -141,16 +141,7 @@ export class ProducingAssetDetailView extends React.Component<DetailViewProps, D
                         label:
                             'Asset Type' +
                             getOffChainText('assetType', selectedAsset.offChainProperties),
-                        data:
-                            ProducingAsset.Type[selectedAsset.offChainProperties.assetType],
-                        image:
-                            ProducingAsset.Type.Wind ===
-                            selectedAsset.offChainProperties.assetType
-                                ? wind
-                                : ProducingAsset.Type.Solar ===
-                                  selectedAsset.offChainProperties.assetType
-                                ? solar
-                                : hydro,
+                        data: 'Battery',
                         rowspan: 2
                     },
                     {

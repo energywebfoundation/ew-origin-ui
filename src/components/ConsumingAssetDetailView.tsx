@@ -30,7 +30,7 @@ import { Configuration } from 'ew-utils-general-lib';
 import { MapContainer } from './MapContainer';
 
 export interface IDetailViewProps {
-    conf: Configuration.Entity;
+    conf: any;
     id: number;
     baseUrl: string;
     certificates: Certificate.Entity[];
