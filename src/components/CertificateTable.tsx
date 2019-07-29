@@ -301,6 +301,12 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
     }
 
     async buyCertificateBulk() {
+        if (this.state.selectedCertificates.length === 0) {
+            showNotification(`No certificates have been selected. Please select at least one certificate.`, NotificationType.Error);
+
+            return;
+        }
+
         this.setState({
             showBuyBulkModal: true
         });

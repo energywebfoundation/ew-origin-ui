@@ -152,8 +152,6 @@ export class Certificates extends React.Component<ICertificatesProps, ICertifica
 
         const isIssuer = this.props.currentUser && this.props.currentUser.isRole(Role.Issuer);
 
-        console.log({tableref: this.tableRef})
-
         const CertificatesMenu = [
             {
                 key: 'inbox',
