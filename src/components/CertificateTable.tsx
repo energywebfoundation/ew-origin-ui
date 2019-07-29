@@ -120,6 +120,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         this.showCertCreated = this.showCertCreated.bind(this);
         this.showCertificateDetails = this.showCertificateDetails.bind(this);
         this.getTokenSymbol = this.getTokenSymbol.bind(this);
+        this.buyCertificateBulk = this.buyCertificateBulk.bind(this);
 
         this.hidePublishForSaleModal = this.hidePublishForSaleModal.bind(this);
         this.hideBuyModal = this.hideBuyModal.bind(this);
@@ -630,8 +631,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
 
         return (
             <div className="CertificateTableWrapper">
-                <button onClick={() => this.buyCertificateBulk()}>Bulk Buy</button>
-
                 <Table
                     operationClicked={this.operationClicked}
                     classNames={['bare-font', 'bare-padding']}

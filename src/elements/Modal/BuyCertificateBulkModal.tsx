@@ -4,7 +4,6 @@ import './Modal.scss';
 import '../PageButton/PageButton.scss';
 
 import { Configuration } from 'ew-utils-general-lib';
-import { Certificate } from 'ew-origin-lib';
 
 import { showNotification, NotificationType } from '../../utils/notifications';
 
@@ -40,7 +39,7 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
     async buyCertificateBulk() {
         await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(this.props.certificateIds);
 
-        showNotification(`Certificates for ${this.props.certificateIds} kWh have been bought.`, NotificationType.Success);
+        showNotification(`Certificates ${this.props.certificateIds.join(' ,')} have been bought.`, NotificationType.Success);
         this.handleClose();
     }
 
