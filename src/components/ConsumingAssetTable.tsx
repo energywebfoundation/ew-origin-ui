@@ -163,7 +163,7 @@ export class ConsumingAssetTable extends PaginatedLoader<ConsumingAssetTableProp
 
         const TableFooter = [
             {
-                label: 'Total',
+                label: ' ',
                 key: 'total',
                 colspan: 5
             },

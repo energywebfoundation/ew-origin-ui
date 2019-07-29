@@ -21,30 +21,37 @@ import { Redirect } from 'react-router-dom';
 import { Configuration, TimeFrame, Compliance, AssetType } from 'ew-utils-general-lib';
 import { ProducingAsset, ConsumingAsset } from 'ew-asset-registry-lib';
 import { User } from 'ew-user-registry-lib';
-import { Supply } from 'ew-market-lib';
+import { Demand, Agreement, Supply } from 'ew-market-lib';
 
 import { Table } from '../elements/Table/Table';
 import TableUtils from '../elements/utils/TableUtils';
+import { showNotification, NotificationType } from '../utils/notifications';
+import { deleteDemand } from 'ew-market-lib/dist/js/src/blockchain-facade/Demand';
 import { IPaginatedLoaderState, PaginatedLoader, DEFAULT_PAGE_SIZE, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
 
-interface ISupplyTableProps {
+export interface IDemandTableProps {
     conf: any;
-    supplies: Supply.Entity[];
+    demands: Demand.Entity[];
     producingAssets: ProducingAsset.Entity[];
+    agreements: Agreement.Entity[];
     currentUser: User;
     switchedToOrganization: boolean;
     baseUrl: string;
+    supplies: Supply.Entity[];
 }
 
-interface ISupplyTableState extends IPaginatedLoaderState {
+export interface IDemandTableState extends IPaginatedLoaderState {
     showMatchingSupply: number;
     switchedToOrganization: boolean;
 }
 
-interface IEnrichedSupplyData {
-    supply: Supply.Entity;
+export interface IEnrichedDemandData {
+    demand: Demand.Entity;
+    demandOwner: User;
     producingAsset?: ProducingAsset.Entity;
 }
+
+export const PeriodToSeconds = [31536000, 2592000, 86400, 3600];
 
 const NO_VALUE_TEXT = 'any';
 
@@ -52,8 +59,8 @@ enum OPERATIONS {
     
 }
 
-export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTableState> {
-    constructor(props: ISupplyTableProps) {
+export class AgreementTable extends PaginatedLoader<IDemandTableProps, IDemandTableState> {
+    constructor(props: IDemandTableProps) {
         super(props);
 
         this.state = {
@@ -66,6 +73,7 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
 
         this.switchToOrganization = this.switchToOrganization.bind(this);
         this.operationClicked = this.operationClicked.bind(this);
+        this.showMatchingSupply = this.showMatchingSupply.bind(this);
     }
 
     switchToOrganization(switchedToOrganization: boolean) {
@@ -74,18 +82,21 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
         });
     }
 
-    async enrichData(supplies: Supply.Entity[]) : Promise<IEnrichedSupplyData[]> {
-        const promises = supplies.map(async (supply: Supply.Entity) => {
-            const result: IEnrichedSupplyData = {
-                supply,
+    async enrichData(demands: Demand.Entity[]) : Promise<IEnrichedDemandData[]> {
+        const promises = demands.map(async (demand: Demand.Entity) => {
+            const result: IEnrichedDemandData = {
+                demand,
                 producingAsset: null,
+                demandOwner: await (new User(demand.demandOwner, this.props.conf)).sync()
             };
 
-            if (typeof(supply.assetId) !== 'undefined') {
-                result.producingAsset = this.props.producingAssets.find(
-                    (asset: ProducingAsset.Entity) =>
-                        asset.id === supply.assetId.toString()
-                );
+            if (demand.offChainProperties) {
+                if (typeof(demand.offChainProperties.productingAsset) !== 'undefined') {
+                    result.producingAsset = this.props.producingAssets.find(
+                        (asset: ProducingAsset.Entity) =>
+                            asset.id === demand.offChainProperties.productingAsset.toString()
+                    );
+                }
             }
 
             return result;
@@ -94,15 +105,15 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
         return Promise.all(promises);
     }
 
-    getCountryRegionText(enrichedData: IEnrichedSupplyData): string {
+    getCountryRegionText(demand: Demand.Entity): string {
         let text = '';
 
-        if (enrichedData.producingAsset.offChainProperties.country) {
-            text += enrichedData.producingAsset.offChainProperties.country;
+        if (demand.offChainProperties.locationCountry) {
+            text += demand.offChainProperties.locationCountry;
         }
 
-        if (enrichedData.producingAsset.offChainProperties.region) {
-            text += `, ${enrichedData.producingAsset.offChainProperties.region}`;
+        if (demand.offChainProperties.locationRegion) {
+            text += `, ${demand.offChainProperties.locationRegion}`;
         }
 
         return text || NO_VALUE_TEXT;
@@ -114,26 +125,38 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
         }
     }
 
+    async deleteDemand(id: number) {
+        try {
+            this.props.conf.blockchainProperties.activeUser = {
+                address: this.props.currentUser.id
+            };
+            await deleteDemand(id, this.props.conf);
+
+            showNotification('Demand deleted', NotificationType.Success);
+        } catch (error) {
+            console.error(error);
+            showNotification(`Can't delete demand`, NotificationType.Error);
+        }
+    }
+
+    showMatchingSupply(demandId: number) {
+        this.setState({
+            showMatchingSupply: demandId
+        });
+    }
 
     async getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
-        const { supplies } = this.props;
-        const enrichedData = await this.enrichData(supplies);
+        const { agreements } = this.props;
 
-        const total = enrichedData.length;
+        const total = agreements.length;
+        
 
-        const data = enrichedData.map(
-            (enrichedSupplyData: IEnrichedSupplyData) => {
-                const supply = enrichedSupplyData.supply;
-
+        const data = agreements.map(
+            (agreement) => {
                 return [
-                    supply.id,
-                    (moment(supply.startTime, 'x')).format('DD MMM YY HH:mm') + ' - ' +
-                        (moment(supply.endTime, 'x')).format('DD MMM YY HH:mm'),
-                    this.getCountryRegionText(enrichedSupplyData),
-                    supply.price / 100,
-                    'EUR',
-                    supply.matchedPower && supply.matchedPower > 0 ? supply.matchedPower / 1000 : supply.matchedPower,
-                    (supply.availableWh / 1000).toLocaleString()
+                    agreement.id,
+                    agreement.supplyId,
+                    agreement.demandId
                 ];
             }
         ).slice(offset, offset + pageSize);
@@ -145,7 +168,15 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
     }
 
     async componentDidUpdate(prevProps) {
-        if (prevProps.supplies.length !== this.props.supplies.length) {
+        if (prevProps.demands.length !== this.props.demands.length
+            || prevProps.supplies.length !== this.props.supplies.length
+            || prevProps.agreements.length !== this.props.agreements.length
+        ) {
+            console.log('component did update', 
+                `Demands: ${prevProps.demands.length} vs ${this.props.demands.length}`,
+                `Supply: ${prevProps.supplies.length} vs ${this.props.supplies.length}`,
+                `Agreements: ${prevProps.agreements.length} vs ${this.props.agreements.length}`,
+            );
             this.loadPage(1);
         }
     }
@@ -153,7 +184,7 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
     render() {
         if (this.state.showMatchingSupply !== null) {
             return (
-                <Redirect push={true} to={`/${this.props.baseUrl}/certificates/for_supply/${this.state.showMatchingSupply}`} />
+                <Redirect push={true} to={`/${this.props.baseUrl}/certificates/for_demand/${this.state.showMatchingSupply}`} />
             );
         }
 
@@ -165,20 +196,17 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
         const TableFooter = [
             {
                 label: ' ',
-                key: 'total',
-                colspan: 6
+                key: 'not',
+                colspan: 2
             },
             generateFooter('Power (kWh)', true)
         ];
 
+
         const TableHeader = [
             generateHeader('#'),
-            generateHeader('Start/End-Date'),
-            generateHeader('Country,<br/>Region'),
-            generateHeader('Price'),
-            generateHeader('Currency'),
-            generateHeader('Matcher Power (kWh)'),
-            generateHeader('Power (kWh)'),
+            generateHeader('Supply ID'),
+            generateHeader('Demand ID'),
         ];
 
         return (
@@ -186,7 +214,6 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
                 <Table
                     classNames={['bare-font', 'bare-padding']}
                     header={TableHeader}
-                    footer={TableFooter}
                     actions={true}
                     data={this.state.data}
                     actionWidth={55.39}
@@ -195,6 +222,7 @@ export class SupplyTable extends PaginatedLoader<ISupplyTableProps, ISupplyTable
                     loadPage={this.loadPage}
                     total={this.state.total}
                     pageSize={this.state.pageSize}
+                    footer={TableFooter}
                 />
             </div>
         );

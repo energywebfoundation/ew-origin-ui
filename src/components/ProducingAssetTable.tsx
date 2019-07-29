@@ -241,7 +241,7 @@ export class ProducingAssetTable extends PaginatedLoader<ProducingAssetTableProp
 
         const TableFooter: any = [
             {
-                label: 'Total',
+                label: ' ',
                 key: 'total',
                 colspan: 6
             },

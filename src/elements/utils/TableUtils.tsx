@@ -54,7 +54,7 @@ const generateFooter = (label, body = false, hide = false) => {
     return {
         key: getKey(label),
         style: body ? { opacity: 1, color: 'white' } : null,
-        hide
+        hide: true
     };
 };
 

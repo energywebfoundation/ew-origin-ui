@@ -116,17 +116,17 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
     }
 
     getCountryRegionText(demand: Demand.Entity): string {
-        let text = '';
+        const words = [];
 
         if (demand.offChainProperties.locationCountry) {
-            text += demand.offChainProperties.locationCountry;
+            words.push(demand.offChainProperties.locationCountry);
         }
 
         if (demand.offChainProperties.locationRegion) {
-            text += `, ${demand.offChainProperties.locationRegion}`;
+            words.push(demand.offChainProperties.locationRegion);
         }
 
-        return text || NO_VALUE_TEXT;
+        return words.length ? words.join(', ') : NO_VALUE_TEXT;
     }
 
     async operationClicked(key: string, id: number) {
@@ -236,7 +236,7 @@ export class DemandTable extends PaginatedLoader<IDemandTableProps, IDemandTable
 
         const TableFooter = [
             {
-                label: 'Total',
+                label: ' ',
                 key: 'total',
                 colspan: 5
             },

@@ -20,8 +20,8 @@ In order to use the UI and Origin, you need a web3-provider. We recommend [MetaM
 2. Create a demand
     * In UI go to *Admin > Create Demand* section
     * Signed in as E.DIS trader
-3. Create an agreement
-    * In UI go to *Admin > Create Agreement* section
+3. Activate Flexibility
+    * In UI go to *Admin > Activate Flexibility* section
     * Signed in as E.DIS trader
     * You can get IDs for supply and demand by going to *Demands*, *Supplies* sections in UI
 4. Save smart meter reading

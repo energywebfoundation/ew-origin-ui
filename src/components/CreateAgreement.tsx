@@ -39,10 +39,10 @@ export class CreateAgreement extends React.Component<ICreateSupplyProps, {}> {
 
             await Agreement.createAgreement(onChainProps, this.props.configuration);
 
-            showNotification('Agreement created', NotificationType.Success);
+            showNotification('Flexibility activated', NotificationType.Success);
         } catch (error) {
-            console.error('Error in Create Agreement: ', error);
-            showNotification(`Can't create agreement`, NotificationType.Error);
+            console.error('Error in Activate Flexibility: ', error);
+            showNotification(`Can't activate flexibility`, NotificationType.Error);
         }
     }
 
@@ -69,7 +69,7 @@ export class CreateAgreement extends React.Component<ICreateSupplyProps, {}> {
             },
             {
                 header: true,
-                footer: 'Create Agreement',
+                footer: 'Activate Flexibility',
                 footerClick: this.createAgreement
             }
         ];

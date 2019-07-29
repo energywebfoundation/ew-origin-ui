@@ -64,18 +64,20 @@ export class ApproveCertificate extends React.Component<Props, State> {
             return c.id === certificateId.toString();
         });
 
-        await certificate.sync();
+        let reportedFlexibility = `Found 0 flexibilty for id ${certificateId.toString()}.`;
 
-        console.log('getReportedFlex', certificate.powerInW, certificate);
+        if (certificate) {
+            await certificate.sync();
 
-        let reportedFlexibility = 'Not set';
-
-        try {
-            reportedFlexibility = await this.parseFlexibility(certificate);
-        } catch (error) {
-
+            console.log('getReportedFlex', certificate.powerInW, certificate);
+    
+            try {
+                reportedFlexibility = await this.parseFlexibility(certificate);
+            } catch (error) {
+    
+            }    
         }
-
+        
         this.setState({
             reportedFlexibility
         });

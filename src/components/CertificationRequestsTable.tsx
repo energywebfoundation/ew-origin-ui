@@ -112,7 +112,7 @@ export class CertificationRequestsTable extends PaginatedLoader<ICertificateTabl
 
         const TableFooter = [
             {
-                label: 'Total',
+                label: ' ',
                 key: 'total',
                 colspan: TableHeader.length - 1
             },

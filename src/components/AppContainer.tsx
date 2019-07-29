@@ -41,6 +41,7 @@ import { Demands } from './Demands';
 import { AccountChangedModal } from '../elements/Modal/AccountChangedModal';
 import axios from 'axios';
 import { Supplies } from './Supplies';
+import { Agreements } from './Agreements';
 
 export const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3030';
 
@@ -313,6 +314,7 @@ export class AppContainer extends React.Component<IAppContainerProps, {}> {
                 certificates={this.props.certificates}
                 supplies={this.props.supplies}
                 agreements={this.props.agreements}
+                demands={this.props.demands}
             />
         );
     }

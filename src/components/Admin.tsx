@@ -23,11 +23,12 @@ import { PageContent } from '../elements/PageContent/PageContent';
 import { OnboardDemand } from './OnboardDemand';
 import { CreateSupply } from './CreateSupply';
 import { CreateAgreement } from './CreateAgreement';
+import { AgreementTable } from './AgreementTable';
 import { User } from 'ew-user-registry-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { ApproveCertificate } from './ApproveCertificate';
 import { Certificate } from 'ew-origin-lib';
-import { Supply, Agreement } from 'ew-market-lib';
+import { Supply, Demand, Agreement } from 'ew-market-lib';
 
 export interface AdminProps {
     conf: any;
@@ -35,6 +36,7 @@ export interface AdminProps {
     producingAssets: ProducingAsset.Entity[];
     certificates: Certificate.Entity[];
     supplies: Supply.Entity[];
+    demands: Demand.Entity[];
     agreements: Agreement.Entity[];
     baseUrl: string;
 }
@@ -46,6 +48,7 @@ export class Admin extends React.Component<AdminProps, {}> {
         this.CreateSupply = this.CreateSupply.bind(this);
         this.CreateAgreement = this.CreateAgreement.bind(this);
         this.ApproveCertificate = this.ApproveCertificate.bind(this);
+        this.Agreements = this.Agreements.bind(this);
     }
 
     OnboardDemand() {
@@ -92,6 +95,21 @@ export class Admin extends React.Component<AdminProps, {}> {
         );
     }
 
+    Agreements() {
+            return (
+                <AgreementTable
+                    conf={this.props.conf}
+                    demands={this.props.demands}
+                    producingAssets={this.props.producingAssets}
+                    currentUser={this.props.currentUser}
+                    baseUrl={this.props.baseUrl}
+                    supplies={this.props.supplies}
+                    agreements={this.props.agreements}
+                    switchedToOrganization={false}
+                />
+            );
+        }
+
     render() {
         const AdminMenu = [
             {
@@ -106,13 +124,18 @@ export class Admin extends React.Component<AdminProps, {}> {
             },
             {
                 key: 'create_agreement',
-                label: 'Create Agreement',
+                label: 'Activate Flexibility',
                 component: this.CreateAgreement
             },
             {
                 key: 'approve_certificate',
                 label: 'Approve Certificate',
                 component: this.ApproveCertificate
+            },
+            {
+                key: 'flexibilities',
+                label: 'Flexibilities',
+                component: this.Agreements
             }
         ];
 
