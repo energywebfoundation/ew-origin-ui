@@ -305,6 +305,14 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             return;
         }
 
+        const isOwnerOfSomeCertificates = this.state.selectedCertificates.some(c => c.owner === this.props.currentUser.id);
+
+        if (isOwnerOfSomeCertificates) {
+            showNotification(`You can't buy your own certificates.`, NotificationType.Error);
+
+            return;
+        }
+
         this.setState({
             showBuyBulkModal: true
         });

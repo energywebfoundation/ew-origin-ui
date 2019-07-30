@@ -41,7 +41,7 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
         const certificateIds: string[] = this.props.certificates.map(cert => cert.id);
         await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(certificateIds);
 
-        showNotification(`Certificates ${certificateIds.join(', ')} have been bought.`, NotificationType.Success);
+        showNotification(`Certificates have been bought.`, NotificationType.Success);
         this.handleClose();
     }
 
@@ -61,7 +61,8 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
                 <Modal.Body className="container">
                     <div className="row">
                         <div className="col">
-                            {`You selected a total of ${totalWh / 1e6} MWh worth of I-REC certificates.\n Would you like to proceed with buying them?`}
+                            <p>{`You selected a total of ${totalWh / 1e6} MWh worth of I-REC certificates.`}</p>
+                            <p>Would you like to proceed with buying them?</p>
                         </div>
                     </div>
 
