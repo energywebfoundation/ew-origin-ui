@@ -83,9 +83,7 @@ export enum OPERATIONS {
     SHOW_CLAIMING_TX = 'Show Claiming Transaction',
     SHOW_CREATION_TX = 'Show Certificate Creation Transaction',
     SHOW_LOGGING_TX = 'Show Initial Logging Transaction',
-    SHOW_DETAILS = 'Show Certificate Details',
-    SELECT = 'Select',
-    UNSELECT = 'Unselect'
+    SHOW_DETAILS = 'Show Certificate Details'
 }
 
 export class CertificateTable extends PaginatedLoader<ICertificateTableProps, ICertificatesState> {
@@ -121,6 +119,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         this.showCertificateDetails = this.showCertificateDetails.bind(this);
         this.getTokenSymbol = this.getTokenSymbol.bind(this);
         this.buyCertificateBulk = this.buyCertificateBulk.bind(this);
+        this.selectCertificate = this.selectCertificate.bind(this);
 
         this.hidePublishForSaleModal = this.hidePublishForSaleModal.bind(this);
         this.hideBuyModal = this.hideBuyModal.bind(this);
@@ -382,44 +381,38 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         }
     }
 
-    selectCertificate(certificateId: number) {
+    selectCertificate(certificateId: number, selected: boolean) {
         const { selectedCertificates } = this.state;
-        if (selectedCertificates.includes(certificateId)) {
-            showNotification(`Certificate ${certificateId} has already been selected.`, NotificationType.Error);
 
-            return;
+        if (selected) {
+            if (selectedCertificates.includes(certificateId)) {
+                showNotification(`Certificate ${certificateId} has already been selected.`, NotificationType.Error);
+
+                return;
+            }
+
+            selectedCertificates.push(certificateId);
+        } else {
+            if (!selectedCertificates.includes(certificateId)) {
+                showNotification(`Certificate ${certificateId} has already been unselected.`, NotificationType.Error);
+
+                return;
+            }
+
+            const index = selectedCertificates.indexOf(certificateId);
+
+            if (index < 0) {
+                showNotification(`Unknown error unselecting ${certificateId}.`, NotificationType.Error);
+            }
+
+            selectedCertificates.splice(index, 1);
         }
-
-        selectedCertificates.push(certificateId);
 
         this.setState({
             selectedCertificates
         });
 
-        showNotification(`Certificate ${certificateId} has been selected.`, NotificationType.Success);
-    }
-
-    unselectCertificate(certificateId: number) {
-        const { selectedCertificates } = this.state;
-        if (!selectedCertificates.includes(certificateId)) {
-            showNotification(`Certificate ${certificateId} has already been unselected.`, NotificationType.Error);
-
-            return;
-        }
-
-        const index = selectedCertificates.indexOf(certificateId);
-
-        if (index < 0) {
-            showNotification(`Unknown error unselecting ${certificateId}.`, NotificationType.Error);
-        }
-
-        selectedCertificates.splice(index, 1);
-
-        this.setState({
-            selectedCertificates
-        });
-
-        showNotification(`Certificate ${certificateId} has been unselected.`, NotificationType.Success);
+        showNotification(`Certificate ${certificateId} has been ${!selected ? 'un' : ''}selected.`, NotificationType.Success);
     }
 
     async showTxClaimed(certificateId: number) {
@@ -538,12 +531,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             case OPERATIONS.SHOW_DETAILS:
                 this.showCertificateDetails(id);
                 break;
-            case OPERATIONS.SELECT:
-                this.selectCertificate(id);
-                break;
-            case OPERATIONS.UNSELECT:
-                this.unselectCertificate(id);
-                break;
             default:
         }
     }
@@ -558,8 +545,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
 
     hideBuyBulkModal() {
         this.setState({
-            showBuyBulkModal: false,
-            selectedCertificates: []
+            showBuyBulkModal: false
         });
     }
 
@@ -630,9 +616,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         operations.push(
             OPERATIONS.SHOW_CREATION_TX,
             OPERATIONS.SHOW_LOGGING_TX,
-            OPERATIONS.SHOW_DETAILS,
-            OPERATIONS.SELECT,
-            OPERATIONS.UNSELECT
+            OPERATIONS.SHOW_DETAILS
         );
 
         return (
@@ -649,6 +633,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
                     loadPage={this.loadPage}
                     total={this.state.total}
                     pageSize={this.state.pageSize}
+                    onSelect={this.props.selectedState === SelectedState.ForSale ? this.selectCertificate : null}
                 />
 
                 <PublishForSaleModal
