@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 import './Modal.scss';
 import '../PageButton/PageButton.scss';
 
+import { Erc20TestToken } from 'ew-erc-test-contracts';
 import { Configuration } from 'ew-utils-general-lib';
 import { Certificate } from 'ew-origin-lib';
 
@@ -38,6 +39,19 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
     }
 
     async buyCertificateBulk() {
+        for (const cert of this.props.certificates) {
+            const acceptedToken = (cert.acceptedToken as any) as string;
+
+            if (acceptedToken !== '0x0000000000000000000000000000000000000000') {
+                const erc20TestToken = new Erc20TestToken(
+                    this.props.conf.blockchainProperties.web3,
+                    acceptedToken
+                );
+
+                await erc20TestToken.approve(cert.owner, cert.onChainDirectPurchasePrice);
+            }
+        }
+
         const certificateIds: string[] = this.props.certificates.map(cert => cert.id);
         await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(certificateIds);
 
