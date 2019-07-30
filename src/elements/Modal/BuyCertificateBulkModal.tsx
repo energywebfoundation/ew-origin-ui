@@ -4,12 +4,13 @@ import './Modal.scss';
 import '../PageButton/PageButton.scss';
 
 import { Configuration } from 'ew-utils-general-lib';
+import { Certificate } from 'ew-origin-lib';
 
 import { showNotification, NotificationType } from '../../utils/notifications';
 
 interface IBuyCertificateBulkModalProps {
     conf: Configuration.Entity;
-    certificateIds: number[];
+    certificates: Certificate.Entity[];
     showModal: boolean;
     callback: () => void;
 }
@@ -37,9 +38,10 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
     }
 
     async buyCertificateBulk() {
-        await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(this.props.certificateIds);
+        const certificateIds: string[] = this.props.certificates.map(cert => cert.id);
+        await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(certificateIds);
 
-        showNotification(`Certificates ${this.props.certificateIds.join(', ')} have been bought.`, NotificationType.Success);
+        showNotification(`Certificates ${certificateIds.join(', ')} have been bought.`, NotificationType.Success);
         this.handleClose();
     }
 
@@ -49,6 +51,8 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
     }
 
     render() {
+        const totalWh = this.props.certificates.reduce((a, b) => a + Number(b.powerInW), 0);
+
         return (
             <Modal show={this.state.show} onHide={this.handleClose} animation={false} backdrop={true} backdropClassName="modal-backdrop">
                 <Modal.Header>
@@ -56,7 +60,9 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
                 </Modal.Header>
                 <Modal.Body className="container">
                     <div className="row">
-                        <div className="col">{this.props.certificateIds.join(', ')}</div>
+                        <div className="col">
+                            {`You selected a total of ${totalWh / 1e6} MWh worth of I-REC certificates.\n Would you like to proceed with buying them?`}
+                        </div>
                     </div>
 
                     <hr />

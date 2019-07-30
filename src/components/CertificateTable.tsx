@@ -56,7 +56,7 @@ export interface IEnrichedCertificateData {
 
 export interface ICertificatesState extends IPaginatedLoaderState {
     selectedState: SelectedState;
-    selectedCertificates: number[];
+    selectedCertificates: Certificate.Entity[];
     detailViewForCertificateId: number;
     matchedCertificates: Certificate.Entity[];
     shouldShowPrice: boolean;
@@ -269,7 +269,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
     }
 
     async buyCertificate(certificateId: number) {
-        console.log({certificateId})
         const certificate: Certificate.Entity = this.props.certificates.find(
             (cert: Certificate.Entity) => cert.id === certificateId.toString()
         );
@@ -381,25 +380,25 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         }
     }
 
-    selectCertificate(certificateId: number, selected: boolean) {
+    selectCertificate(certificateId: string, selected: boolean) {
         const { selectedCertificates } = this.state;
 
         if (selected) {
-            if (selectedCertificates.includes(certificateId)) {
-                showNotification(`Certificate ${certificateId} has already been selected.`, NotificationType.Error);
-
+            if (selectedCertificates.some(cert => cert.id === certificateId)) {
                 return;
             }
 
-            selectedCertificates.push(certificateId);
+            const certificate = this.props.certificates.find(cert => cert.id === certificateId);
+
+            selectedCertificates.push(certificate);
         } else {
-            if (!selectedCertificates.includes(certificateId)) {
-                showNotification(`Certificate ${certificateId} has already been unselected.`, NotificationType.Error);
-
+            if (!selectedCertificates.some(cert => cert.id === certificateId)) {
                 return;
             }
 
-            const index = selectedCertificates.indexOf(certificateId);
+            const certificate = selectedCertificates.find(cert => cert.id === certificateId);
+
+            const index = selectedCertificates.indexOf(certificate);
 
             if (index < 0) {
                 showNotification(`Unknown error unselecting ${certificateId}.`, NotificationType.Error);
@@ -411,8 +410,6 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         this.setState({
             selectedCertificates
         });
-
-        showNotification(`Certificate ${certificateId} has been ${!selected ? 'un' : ''}selected.`, NotificationType.Success);
     }
 
     async showTxClaimed(certificateId: number) {
@@ -591,6 +588,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         ];
 
         const operations = [];
+        let onSelect = null;
 
         switch (this.props.selectedState) {
             case SelectedState.Inbox:
@@ -604,6 +602,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
                     OPERATIONS.BUY,
                     OPERATIONS.RETURN_TO_INBOX
                 );
+                onSelect = this.selectCertificate;
                 break;
             case SelectedState.Claimed:
                 operations.push(OPERATIONS.SHOW_CLAIMING_TX);
@@ -633,7 +632,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
                     loadPage={this.loadPage}
                     total={this.state.total}
                     pageSize={this.state.pageSize}
-                    onSelect={this.props.selectedState === SelectedState.ForSale ? this.selectCertificate : null}
+                    onSelect={onSelect}
                 />
 
                 <PublishForSaleModal
@@ -660,7 +659,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
 
                 <BuyCertificateBulkModal
                     conf={this.props.conf}
-                    certificateIds={this.state.selectedCertificates}
+                    certificates={this.state.selectedCertificates}
                     showModal={this.state.showBuyBulkModal}
                     callback={this.hideBuyBulkModal}
                 />

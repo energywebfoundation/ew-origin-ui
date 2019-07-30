@@ -43,7 +43,7 @@ interface IProps {
     type?: any;
     operations?: any[];
     operationClicked?: Function;
-    onSelect?: (id: number, selected: boolean) => void;
+    onSelect?: (id: string, selected: boolean) => void;
 }
 
 export interface ITableHeaderData {
@@ -342,7 +342,7 @@ export class Table extends React.Component<IProps, IState> {
                                                         type="checkbox"
                                                         className="custom-control-input"
                                                         id={'selectbox' + row[0]}
-                                                        onChange={e => this.props.onSelect(Number(row[0]), e.target.checked)}
+                                                        onChange={e => this.props.onSelect(row[0], e.target.checked)}
                                                     />
                                                     <label className="custom-control-label" htmlFor={'selectbox' + row[0]} />
                                                 </div>
