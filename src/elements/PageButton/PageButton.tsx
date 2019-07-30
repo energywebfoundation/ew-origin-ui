@@ -103,11 +103,6 @@ export class PageButton extends React.Component<any, any> {
                     >
                         <DateRange onInit={this.handleDateRange} onChange={this.handleDateRange} />
                     </DropdownButton>
-                ) : type === 'button' ? (
-                    <button
-                        onClick={onClick}
-                        className={'btn btn-default'}
-                    >{label}</button>
                 ) : (
                     <div>Unknown Type</div>
                 )}

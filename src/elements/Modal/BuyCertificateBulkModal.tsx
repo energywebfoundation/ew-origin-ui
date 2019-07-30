@@ -39,7 +39,7 @@ export class BuyCertificateBulkModal extends React.Component<IBuyCertificateBulk
     async buyCertificateBulk() {
         await this.props.conf.blockchainProperties.certificateLogicInstance.buyCertificateBulk(this.props.certificateIds);
 
-        showNotification(`Certificates ${this.props.certificateIds.join(' ,')} have been bought.`, NotificationType.Success);
+        showNotification(`Certificates ${this.props.certificateIds.join(', ')} have been bought.`, NotificationType.Success);
         this.handleClose();
     }
 
