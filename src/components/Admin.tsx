@@ -29,6 +29,7 @@ import { ProducingAsset } from 'ew-asset-registry-lib';
 import { ApproveCertificate } from './ApproveCertificate';
 import { Certificate } from 'ew-origin-lib';
 import { Supply, Demand, Agreement } from 'ew-market-lib';
+import { SaveRead } from './SaveRead';
 
 export interface AdminProps {
     conf: any;
@@ -49,6 +50,7 @@ export class Admin extends React.Component<AdminProps, {}> {
         this.CreateAgreement = this.CreateAgreement.bind(this);
         this.ApproveCertificate = this.ApproveCertificate.bind(this);
         this.Agreements = this.Agreements.bind(this);
+        this.SaveRead = this.SaveRead.bind(this);
     }
 
     OnboardDemand() {
@@ -74,6 +76,16 @@ export class Admin extends React.Component<AdminProps, {}> {
     CreateAgreement() {
         return (
             <CreateAgreement
+                configuration={this.props.conf}
+                currentUser={this.props.currentUser}
+                producingAssets={this.props.producingAssets}
+            />
+        );
+    }
+
+    SaveRead() {
+        return (
+            <SaveRead
                 configuration={this.props.conf}
                 currentUser={this.props.currentUser}
                 producingAssets={this.props.producingAssets}
@@ -136,6 +148,11 @@ export class Admin extends React.Component<AdminProps, {}> {
                 key: 'flexibilities',
                 label: 'Flexibilities',
                 component: this.Agreements
+            },
+            {
+                key: 'save_read',
+                label: 'Save SM Read',
+                component: this.SaveRead
             }
         ];
 
