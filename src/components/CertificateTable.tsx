@@ -305,6 +305,14 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             return;
         }
 
+        // If we try to bulk buy more than 100 certificates it will probably
+        // overflow the block gas limit
+        if (this.state.selectedCertificates.length > 100) {
+            showNotification(`Please select less than 100 certificates.`, NotificationType.Error);
+
+            return;
+        }
+
         const isOwnerOfSomeCertificates = this.state.selectedCertificates.some(c => c.owner === this.props.currentUser.id);
 
         if (isOwnerOfSomeCertificates) {
