@@ -44,7 +44,6 @@ export class ColumnBatchActions extends Component<IProps> {
                 <div className="ColumnBatchActions_list">
                     {batchableActions.map(action => 
                         <div onClick={() => this.handleAction(action)} className="ColumnBatchActions_list_item" key={action.label}>
-                            <i className="fa {action.icon}"></i>
                             {action.label}
                         </div>
                     )}
