@@ -20,16 +20,6 @@ export class CreateSupply extends React.Component<ICreateSupplyProps, {}> {
     }
 
     async createSupply(input: any) {
-        const creationDemandProperties = {
-            otherGreenAttributes: '',
-            typeOfPublicSupport: '',
-            pricePerCertifiedWh: 0,
-            assettype: AssetType.Wind,
-            registryCompliance: Compliance.none,
-            timeframe: TimeFrame.yearly,
-            currency: Currency.EUR
-        };
-
         const transformedInput = { ...input };
 
         if (typeof(transformedInput.power) !== 'undefined') {
@@ -39,11 +29,11 @@ export class CreateSupply extends React.Component<ICreateSupplyProps, {}> {
         transformedInput.power = transformedInput.power * 1000;
 
         if (typeof(transformedInput.startTime) !== 'undefined') {
-            transformedInput.startTime = (transformedInput.startTime * 1000).toString();
+            transformedInput.startTime = transformedInput.startTime * 1000;
         }
 
         if (typeof(transformedInput.endTime) !== 'undefined') {
-            transformedInput.endTime = (transformedInput.endTime * 1000).toString();
+            transformedInput.endTime = transformedInput.endTime * 1000;
         }
 
         const supplyProps: Supply.ISupplyOnChainProperties = {
@@ -51,8 +41,8 @@ export class CreateSupply extends React.Component<ICreateSupplyProps, {}> {
             propertiesDocumentHash: '',
             assetId: transformedInput.assetID,
             currency: Currency.EUR,
-            startTime: transformedInput.startTime || '',
-            endTime: transformedInput.endTime || '',
+            startTime: transformedInput.startTime || 0,
+            endTime: transformedInput.endTime || 0,
             availableWh: transformedInput.power,
             price: parseFloat(transformedInput.price) * 100,
             matchedPower: 0
@@ -62,6 +52,8 @@ export class CreateSupply extends React.Component<ICreateSupplyProps, {}> {
             this.props.configuration.blockchainProperties.activeUser = {
                 address: this.props.currentUser.id
             };
+
+            console.log('CreateSupply', supplyProps);
 
             await Supply.createSupply(supplyProps, this.props.configuration);
 
