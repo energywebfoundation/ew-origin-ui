@@ -32,6 +32,7 @@ import { Configuration } from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 import { MapContainer } from './MapContainer';
 import { SmartMeterReadingsTable } from './SmartMeterReadingsTable';
+import { SmartMeterReadingsChart } from './SmartMeterReadingsChart';
 
 export interface IDetailViewProps {
     conf: Configuration.Entity;
@@ -314,6 +315,11 @@ export class ProducingAssetDetailView extends React.Component<IDetailViewProps, 
                 <div className="PageContentWrapper">
                     {pageBody}
                 </div>
+
+                <SmartMeterReadingsChart
+                    conf={this.props.conf}
+                    producingAsset={selectedAsset}
+                />
             </div>
         );
     }
