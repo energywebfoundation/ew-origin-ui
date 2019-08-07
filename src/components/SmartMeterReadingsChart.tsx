@@ -7,10 +7,17 @@ import { Configuration } from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 
 enum TIMEFRAME {
-    YEARLY = 'Yearly',
-    MONTHLY = 'Monthly',
-    WEEKLY = 'Weekly',
-    DAILY = 'Daily'
+    DAY = 'Day',
+    WEEK = 'Week',
+    MONTH = 'Month',
+    YEAR = 'Year'
+}
+
+interface IFormattedSMReadings {
+    [TIMEFRAME.DAY]: object;
+    [TIMEFRAME.WEEK]: object;
+    [TIMEFRAME.MONTH]: object;
+    [TIMEFRAME.YEAR]: object;
 }
 
 export interface ISmartMeterReadingsChartProps {
@@ -19,7 +26,9 @@ export interface ISmartMeterReadingsChartProps {
 }
 
 export interface ISmartMeterReadingsChartState {
-    selectedTimeFrame: TIMEFRAME;
+    selectedTimeFrame: string;
+    readings: ProducingAsset.ISmartMeterRead[];
+    formattedReadings: IFormattedSMReadings;
 }
 
 export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadingsChartProps, ISmartMeterReadingsChartState> {
@@ -27,52 +36,103 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         super(props);
 
         this.state = {
-            selectedTimeFrame: TIMEFRAME.MONTHLY
+            selectedTimeFrame: TIMEFRAME.MONTH,
+            readings: [],
+            formattedReadings: {
+                [TIMEFRAME.DAY]: [],
+                [TIMEFRAME.WEEK]: [],
+                [TIMEFRAME.MONTH]: [],
+                [TIMEFRAME.YEAR]: []
+            }
         };
+
+        this.setSelectedTimeFrame = this.setSelectedTimeFrame.bind(this);
+    }
+
+    async componentDidMount() {
+        const readings: ProducingAsset.ISmartMeterRead[] = await this.props.producingAsset.getSmartMeterReads();
+
+        const formattedReadings = {
+            [TIMEFRAME.DAY]: this.getFormattedReadings(readings, 'hour', 12, 'HH'),
+            [TIMEFRAME.WEEK]: this.getFormattedReadings(readings, 'day', 7, 'D MMM'),
+            [TIMEFRAME.MONTH]: this.getFormattedReadings(readings, 'day', 31, 'D MMM'),
+            [TIMEFRAME.YEAR]: this.getFormattedReadings(readings, 'month', 12, 'MMM')
+        };
+
+        this.setState({
+            readings,
+            formattedReadings
+        });
+    }
+
+    getFormattedReadings(
+        readings: ProducingAsset.ISmartMeterRead[],
+        timeframe: any,
+        amount: number,
+        keyFormat: string
+    ) {
+        const formatted = [];
+
+        let currentIndex = 0;
+
+        while (currentIndex < amount) {
+            const currentDate = moment().subtract(currentIndex, timeframe);
+            let totalEnergy = 0;
+
+            for (const reading of readings) {
+                const readingDate = moment.unix(reading.timestamp);
+
+                if (readingDate.isSame(currentDate, timeframe)) {
+                    totalEnergy += reading.energy;
+                }
+            }
+
+            formatted.push({
+                label: currentDate.format(keyFormat),
+                value: totalEnergy
+            });
+
+            currentIndex += 1;
+        }
+
+        return formatted;
+    }
+
+    setSelectedTimeFrame(timeframe) {
+        console.log({timeframe: TIMEFRAME[timeframe]})
+        this.setState({
+            selectedTimeFrame: TIMEFRAME[timeframe]
+        });
     }
 
     render() {
-        let data;
+        const { selectedTimeFrame, formattedReadings } = this.state;
+        console.log({selectedTimeFrame, formattedReadings})
 
-        switch (this.state.selectedTimeFrame) {
-            case TIMEFRAME.YEARLY:
-                data = {
-                    labels: moment.monthsShort(),
-                    datasets: [
-                        {
-                            label:'Power (Wh)',
-                            data: [1,2,3,4,5,6,7,8,9,10,11,12]
-                        }
-                    ]
-                };
-                break;
+        const labels = formattedReadings[selectedTimeFrame].map(entry => entry.label);
+        const values = formattedReadings[selectedTimeFrame].map(entry => entry.value);
 
-            case TIMEFRAME.MONTHLY:
-                const daysInMonth = moment().daysInMonth();
-                data = {
-                    labels: Array.from(Array(daysInMonth), (d, i) => i + 1),
-                    datasets: [
-                        {
-                            label: 'Power (Wh)',
-                            data: Array.from(Array(daysInMonth), (d, i) => i + 1)
-                        }
-                    ]
-                };
-                break;
-        }
+        const data = {
+            labels,
+            datasets: [
+                {
+                    label: 'Power (Wh)',
+                    data: values
+                }
+            ]
+        };
 
-        let availableTimeFrames = Object.keys(TIMEFRAME);
-        availableTimeFrames = availableTimeFrames.splice(
-            Math.ceil(availableTimeFrames.length / 2),
-            availableTimeFrames.length - 1
-        );
+        const availableTimeFrames = Object.keys(TIMEFRAME);
 
         return (
             <div className="smartMeterReadingsChart">
-                <ButtonGroup aria-label="Basic example">
+                <ButtonGroup
+                    aria-label="Basic example"
+                >
                     {availableTimeFrames.map(
                         (timeframe, index) => <Button
                             key={index}
+                            onClick={() => this.setSelectedTimeFrame(timeframe)}
                             variant="primary">
                                 {TIMEFRAME[timeframe]}
                         </Button>
