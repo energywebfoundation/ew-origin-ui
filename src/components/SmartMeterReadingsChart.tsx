@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Bar } from 'react-chartjs-2';
 import moment from 'moment';
+import 'moment/min/locales.min';
 import { ButtonGroup, Button } from 'react-bootstrap';
 
 import { Configuration } from 'ew-utils-general-lib';
@@ -34,6 +35,8 @@ export interface ISmartMeterReadingsChartState {
 export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadingsChartProps, ISmartMeterReadingsChartState> {
     constructor(props: ISmartMeterReadingsChartProps) {
         super(props);
+
+        moment.locale(window.navigator.language);
 
         this.state = {
             graphOptions: {
@@ -74,35 +77,39 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         let measurementUnit;
         let amount;
         let keyFormat;
+        let endDate;
 
         switch (timeframe.timeframe) {
             case TIMEFRAME.DAY:
                 measurementUnit = 'hour';
                 amount = 24;
                 keyFormat = 'HH';
+                endDate = moment(timeframe.endDate).endOf('day');
                 break;
 
             case TIMEFRAME.WEEK:
                 measurementUnit = 'day';
                 amount = 7;
-                keyFormat = 'D MMM';
+                keyFormat = 'ddd D MMM';
+                endDate = moment(timeframe.endDate).endOf('week');
                 break;
 
             case TIMEFRAME.MONTH:
                 measurementUnit = 'day';
                 amount = 31;
                 keyFormat = 'D MMM';
+                endDate = moment(timeframe.endDate).endOf('month');
                 break;
 
             case TIMEFRAME.YEAR:
                 measurementUnit = 'month';
                 amount = 12;
                 keyFormat = 'MMM';
+                endDate = moment(timeframe.endDate).endOf('year');
                 break;
         }
 
         let currentIndex = 0;
-        const endDate = moment(timeframe.endDate);
 
         while (currentIndex < amount) {
             const currentDate = endDate.clone().subtract(currentIndex, measurementUnit);
@@ -185,19 +192,25 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
             ]
         };
 
-        const availableTimeFrames = Object.keys(TIMEFRAME);
-        const timeFrameButtons = availableTimeFrames.map(
-            (timeframe, index) => <Button
-                key={index}
-                onClick={() => this.setSelectedTimeFrame({
-                    timeframe: TIMEFRAME[timeframe],
-                    endDate: moment().toDate()
-                })}
-                className={selectedTimeFrame.timeframe === TIMEFRAME[timeframe] ? 'selected' : ''}
-                variant="primary">
+        const timeFrameButtons = Object.keys(TIMEFRAME).map((timeframe, index) => {
+            const onClick = () => this.setSelectedTimeFrame({
+                timeframe: TIMEFRAME[timeframe],
+                endDate: moment().toDate()
+            });
+
+            const isCurrentlySelected = selectedTimeFrame.timeframe === TIMEFRAME[timeframe];
+
+            return (
+                <Button
+                    key={index}
+                    onClick={onClick}
+                    className={isCurrentlySelected ? 'selected' : ''}
+                    variant="primary"
+                >
                     {TIMEFRAME[timeframe]}
-            </Button>
-        );
+                </Button>
+            );
+        });
 
         return (
             <div className="smartMeterReadingsChart text-center">
