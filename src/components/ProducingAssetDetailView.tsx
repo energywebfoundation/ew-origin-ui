@@ -323,7 +323,6 @@ export class ProducingAssetDetailView extends React.Component<IDetailViewProps, 
                         </div>
                     </div>
                 </div>
-
             </div>
         );
     }
