@@ -69,7 +69,7 @@
     "query-string": "6.5.0",
     "react": "16.8.6",
     "react-bootstrap": "0.31.5",
-    "react-chartjs-2": "^2.7.6",
+    "react-chartjs-2": "2.7.6",
     "react-date-picker": "6.13.0",
     "react-date-range": "0.9.4",
     "react-dom": "16.8.6",

@@ -49,6 +49,15 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                             }
                         }
                     ]
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem, data) => {
+                            const tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+
+                            return parseInt(tooltipValue).toLocaleString();
+                        }
+                    }
                 }
             },
             selectedTimeFrame: {
@@ -73,38 +82,32 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
     }
 
     changeSelectedTimeFrame(increment: boolean = true) {
-        const { selectedTimeFrame } = this.state;
+        const { selectedTimeFrame: {
+            timeframe, endDate
+        } } = this.state;
 
         let measurementUnit;
 
-        switch (selectedTimeFrame.timeframe) {
-            case TIMEFRAME.DAY:
-                measurementUnit = 'day';
-                break;
-
-            case TIMEFRAME.WEEK:
-                measurementUnit = 'day';
-                break;
-
-            case TIMEFRAME.MONTH:
-                measurementUnit = 'month';
-                break;
-
-            case TIMEFRAME.YEAR:
-                measurementUnit = 'year';
-                break;
+        if (timeframe === TIMEFRAME.DAY) {
+            measurementUnit = 'day';
+        } else if (timeframe === TIMEFRAME.WEEK) {
+            measurementUnit = 'week';
+        } else if (timeframe === TIMEFRAME.MONTH) {
+            measurementUnit = 'month';
+        } else {
+            measurementUnit = 'year';
         }
 
-        const amount = selectedTimeFrame.timeframe === TIMEFRAME.WEEK ? 7 : 1;
-        const currentDate = moment(selectedTimeFrame.endDate);
+        const amount = timeframe === TIMEFRAME.WEEK ? 7 : 1;
+        const currentDate = moment(endDate);
 
-        const endDate = increment
+        const newEndDate = increment
             ? currentDate.add(amount, measurementUnit)
             : currentDate.subtract(amount, measurementUnit);
 
         this.setSelectedTimeFrame({
-            timeframe: selectedTimeFrame.timeframe,
-            endDate: endDate.toDate()
+            timeframe,
+            endDate: newEndDate.toDate()
         });
     }
 
@@ -146,7 +149,6 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                 amount = 12;
                 keyFormat = 'MMM';
                 chartEndDate = moment(endDate).endOf('year');
-                break;
         }
 
         let currentIndex = 0;
@@ -180,27 +182,17 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
             timeframe, endDate
         } } = this.state;
 
-        let rangeString;
+        const endDateRef = moment(endDate);
 
-        switch (timeframe) {
-            case TIMEFRAME.DAY:
-                rangeString = moment(endDate).format('D MMM YYYY');
-                break;
-
-            case TIMEFRAME.WEEK:
-                rangeString = `${moment(endDate).startOf('week').format('D MMM YYYY')} - ${moment(endDate).endOf('week').format('D MMM YYYY')}`;
-                break;
-
-            case TIMEFRAME.MONTH:
-                rangeString = moment(endDate).format('MMM YYYY');
-                break;
-
-            case TIMEFRAME.YEAR:
-                rangeString = moment(endDate).format('YYYY');
-                break;
+        if (timeframe === TIMEFRAME.WEEK) {
+            return `${endDateRef.startOf('week').format('D MMM YYYY')} - ${endDateRef.endOf('week').format('D MMM YYYY')}`;
+        } else if (timeframe === TIMEFRAME.MONTH) {
+            return endDateRef.format('MMM YYYY');
+        } else if (timeframe === TIMEFRAME.YEAR) {
+            return endDateRef.format('YYYY');
         }
 
-        return rangeString;
+        return endDateRef.format('D MMM YYYY');
     }
 
     render() {
@@ -210,7 +202,7 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
             labels: this.formattedReadings.map(entry => entry.label),
             datasets: [
                 {
-                    label: 'Power (Wh)',
+                    label: 'Energy (Wh)',
                     backgroundColor: this.formattedReadings.map(entry => entry.color),
                     data: this.formattedReadings.map(entry => entry.value)
                 }
