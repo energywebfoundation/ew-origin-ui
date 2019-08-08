@@ -15,11 +15,9 @@ enum TIMEFRAME {
     YEAR = 'Year'
 }
 
-interface IFormattedSMReadings {
-    [TIMEFRAME.DAY]: object;
-    [TIMEFRAME.WEEK]: object;
-    [TIMEFRAME.MONTH]: object;
-    [TIMEFRAME.YEAR]: object;
+interface ISelectedTimeFrame {
+    timeframe: string;
+    endDate: Date;
 }
 
 export interface ISmartMeterReadingsChartProps {
@@ -28,9 +26,8 @@ export interface ISmartMeterReadingsChartProps {
 }
 
 export interface ISmartMeterReadingsChartState {
-    selectedTimeFrame: string;
+    selectedTimeFrame: ISelectedTimeFrame;
     readings: ProducingAsset.ISmartMeterRead[];
-    formattedReadings: IFormattedSMReadings;
 }
 
 export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadingsChartProps, ISmartMeterReadingsChartState> {
@@ -38,59 +35,76 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         super(props);
 
         this.state = {
-            selectedTimeFrame: TIMEFRAME.MONTH,
-            readings: [],
-            formattedReadings: {
-                [TIMEFRAME.DAY]: [],
-                [TIMEFRAME.WEEK]: [],
-                [TIMEFRAME.MONTH]: [],
-                [TIMEFRAME.YEAR]: []
-            }
+            selectedTimeFrame: {
+                timeframe: TIMEFRAME.MONTH,
+                endDate: moment().toDate()
+            },
+            readings: []
         };
 
         this.setSelectedTimeFrame = this.setSelectedTimeFrame.bind(this);
+        this.getFormattedReadings = this.getFormattedReadings.bind(this)
     }
 
     async componentDidMount() {
         const readings: ProducingAsset.ISmartMeterRead[] = await this.props.producingAsset.getSmartMeterReads();
 
-        const formattedReadings = {
-            [TIMEFRAME.DAY]: this.getFormattedReadings(readings, 'hour', 12, 'HH'),
-            [TIMEFRAME.WEEK]: this.getFormattedReadings(readings, 'day', 7, 'D MMM'),
-            [TIMEFRAME.MONTH]: this.getFormattedReadings(readings, 'day', 31, 'D MMM'),
-            [TIMEFRAME.YEAR]: this.getFormattedReadings(readings, 'month', 12, 'MMM')
-        };
-
         this.setState({
-            readings,
-            formattedReadings
+            readings
         });
     }
 
-    getFormattedReadings(
-        readings: ProducingAsset.ISmartMeterRead[],
-        timeframe: any,
-        amount: number,
-        keyFormat: string
-    ) {
+    getFormattedReadings(timeframe: ISelectedTimeFrame) {
+        const { readings } = this.state;
         const formatted = [];
 
+        let measurementUnit;
+        let amount;
+        let keyFormat;
+
+        switch (timeframe.timeframe) {
+            case TIMEFRAME.DAY:
+                measurementUnit = 'hour';
+                amount = 12;
+                keyFormat = 'HH';
+                break;
+
+            case TIMEFRAME.WEEK:
+                measurementUnit = 'day';
+                amount = 7;
+                keyFormat = 'D MMM';
+                break;
+
+            case TIMEFRAME.MONTH:
+                measurementUnit = 'day';
+                amount = 31;
+                keyFormat = 'D MMM';
+                break;
+
+            case TIMEFRAME.YEAR:
+                measurementUnit = 'month';
+                amount = 12;
+                keyFormat = 'MMM';
+                break;
+        }
+
         let currentIndex = 0;
+        const endDate = moment(timeframe.endDate);
 
         while (currentIndex < amount) {
-            const currentDate = moment().subtract(currentIndex, timeframe);
+            const currentDate = endDate.clone().subtract(currentIndex, measurementUnit);
             let totalEnergy = 0;
 
             for (const reading of readings) {
                 const readingDate = moment.unix(reading.timestamp);
 
-                if (readingDate.isSame(currentDate, timeframe)) {
+                if (readingDate.isSame(currentDate, measurementUnit)) {
                     totalEnergy += reading.energy;
                 }
             }
 
             formatted.push({
-                label: timeframe !== 'hour' ? currentDate.format(keyFormat) : `${currentDate.format(keyFormat)}:00`,
+                label: measurementUnit !== 'hour' ? currentDate.format(keyFormat) : `${currentDate.format(keyFormat)}:00`,
                 color: '#8059a6',
                 value: totalEnergy
             });
@@ -102,17 +116,19 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
     }
 
     setSelectedTimeFrame(timeframe) {
-        console.log({timeframe: TIMEFRAME[timeframe]})
         this.setState({
-            selectedTimeFrame: TIMEFRAME[timeframe]
+            selectedTimeFrame: {
+                timeframe: TIMEFRAME[timeframe],
+                endDate: moment().toDate()
+            }
         });
     }
 
     render() {
-        const { selectedTimeFrame, formattedReadings } = this.state;
-        console.log({selectedTimeFrame, formattedReadings})
+        const { selectedTimeFrame } = this.state;
+        console.log({selectedTimeFrame});
 
-        const formattedData = formattedReadings[selectedTimeFrame];
+        const formattedData = this.getFormattedReadings(selectedTimeFrame);
 
         const data = {
             labels: formattedData.map(entry => entry.label),
@@ -137,17 +153,33 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                         (timeframe, index) => <Button
                             key={index}
                             onClick={() => this.setSelectedTimeFrame(timeframe)}
-                            className={selectedTimeFrame === TIMEFRAME[timeframe] ? 'selected' : ''}
+                            className={selectedTimeFrame.timeframe === TIMEFRAME[timeframe] ? 'selected' : ''}
                             variant="primary">
                                 {TIMEFRAME[timeframe]}
                         </Button>
                     )}
                 </ButtonGroup>
 
+                {/* <div className="row">
+                    <div className="col">
+                        <Button variant="primary">
+                            {'<'}
+                        </Button>
+                    </div>
+
+                    <div className="col">
+                        <Button variant="primary">
+                            {'>'}
+                        </Button>
+                    </div>
+                </div> */}
+
                 <div className="graph">
                     <Bar
                         data={data}
-                        options={{ maintainAspectRatio: false }}
+                        options={{
+                            maintainAspectRatio: false
+                        }}
                     />
                 </div>
             </div>
