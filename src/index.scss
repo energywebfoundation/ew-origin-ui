@@ -1,5 +1,10 @@
 @import "./styles/toastr.scss";
 
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
 .PageWrapper {
     .PageFooter,
     .PageNav {

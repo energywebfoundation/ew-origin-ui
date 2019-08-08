@@ -26,6 +26,7 @@ export interface ISmartMeterReadingsChartProps {
 }
 
 export interface ISmartMeterReadingsChartState {
+    graphOptions: object;
     selectedTimeFrame: ISelectedTimeFrame;
     readings: ProducingAsset.ISmartMeterRead[];
 }
@@ -35,6 +36,18 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         super(props);
 
         this.state = {
+            graphOptions: {
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }
+                    ]
+                }
+            },
             selectedTimeFrame: {
                 timeframe: TIMEFRAME.MONTH,
                 endDate: moment().toDate()
@@ -43,15 +56,15 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         };
 
         this.setSelectedTimeFrame = this.setSelectedTimeFrame.bind(this);
-        this.getFormattedReadings = this.getFormattedReadings.bind(this)
+        this.changeSelectedTimeFrame = this.changeSelectedTimeFrame.bind(this);
+
+        this.getFormattedReadings = this.getFormattedReadings.bind(this);
     }
 
     async componentDidMount() {
         const readings: ProducingAsset.ISmartMeterRead[] = await this.props.producingAsset.getSmartMeterReads();
 
-        this.setState({
-            readings
-        });
+        this.setState({ readings });
     }
 
     getFormattedReadings(timeframe: ISelectedTimeFrame) {
@@ -65,7 +78,7 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         switch (timeframe.timeframe) {
             case TIMEFRAME.DAY:
                 measurementUnit = 'hour';
-                amount = 12;
+                amount = 24;
                 keyFormat = 'HH';
                 break;
 
@@ -115,17 +128,48 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         return formatted.reverse();
     }
 
-    setSelectedTimeFrame(timeframe) {
-        this.setState({
-            selectedTimeFrame: {
-                timeframe: TIMEFRAME[timeframe],
-                endDate: moment().toDate()
-            }
+    setSelectedTimeFrame(timeframe: ISelectedTimeFrame) {
+        this.setState({ selectedTimeFrame: timeframe });
+    }
+
+    changeSelectedTimeFrame(increment: boolean = true) {
+        const { selectedTimeFrame } = this.state;
+
+        let measurementUnit;
+
+        switch (selectedTimeFrame.timeframe) {
+            case TIMEFRAME.DAY:
+                measurementUnit = 'day';
+                break;
+
+            case TIMEFRAME.WEEK:
+                measurementUnit = 'day';
+                break;
+
+            case TIMEFRAME.MONTH:
+                measurementUnit = 'month';
+                break;
+
+            case TIMEFRAME.YEAR:
+                measurementUnit = 'year';
+                break;
+        }
+
+        const amount = selectedTimeFrame.timeframe === TIMEFRAME.WEEK ? 7 : 1;
+        const currentDate = moment(selectedTimeFrame.endDate);
+
+        const endDate = increment
+            ? currentDate.add(amount, measurementUnit)
+            : currentDate.subtract(amount, measurementUnit);
+
+        this.setSelectedTimeFrame({
+            timeframe: selectedTimeFrame.timeframe,
+            endDate: endDate.toDate()
         });
     }
 
     render() {
-        const { selectedTimeFrame } = this.state;
+        const { selectedTimeFrame, graphOptions } = this.state;
         console.log({selectedTimeFrame});
 
         const formattedData = this.getFormattedReadings(selectedTimeFrame);
@@ -142,45 +186,49 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         };
 
         const availableTimeFrames = Object.keys(TIMEFRAME);
+        const timeFrameButtons = availableTimeFrames.map(
+            (timeframe, index) => <Button
+                key={index}
+                onClick={() => this.setSelectedTimeFrame({
+                    timeframe: TIMEFRAME[timeframe],
+                    endDate: moment().toDate()
+                })}
+                className={selectedTimeFrame.timeframe === TIMEFRAME[timeframe] ? 'selected' : ''}
+                variant="primary">
+                    {TIMEFRAME[timeframe]}
+            </Button>
+        );
 
         return (
             <div className="smartMeterReadingsChart text-center">
-                <ButtonGroup
-                    aria-label="Basic example"
-                    className="button-switcher mb-4"
-                >
-                    {availableTimeFrames.map(
-                        (timeframe, index) => <Button
-                            key={index}
-                            onClick={() => this.setSelectedTimeFrame(timeframe)}
-                            className={selectedTimeFrame.timeframe === TIMEFRAME[timeframe] ? 'selected' : ''}
-                            variant="primary">
-                                {TIMEFRAME[timeframe]}
-                        </Button>
-                    )}
-                </ButtonGroup>
-
-                {/* <div className="row">
-                    <div className="col">
-                        <Button variant="primary">
+                <div className="row mb-4 vertical-align">
+                    <div className="col-lg-2">
+                        <div
+                            className="pull-left arrow-button"
+                            onClick={() => this.changeSelectedTimeFrame(false)}
+                        >
                             {'<'}
-                        </Button>
+                        </div>
                     </div>
 
-                    <div className="col">
-                        <Button variant="primary">
-                            {'>'}
-                        </Button>
+                    <div className="col-lg-8">
+                        <ButtonGroup className="button-switcher">
+                            {timeFrameButtons}
+                        </ButtonGroup>
                     </div>
-                </div> */}
+
+                    <div className="col-lg-2">
+                        <div
+                            className="pull-right arrow-button"
+                            onClick={() => this.changeSelectedTimeFrame(true)}
+                        >
+                            {'>'}
+                        </div>
+                    </div>
+                </div>
 
                 <div className="graph">
-                    <Bar
-                        data={data}
-                        options={{
-                            maintainAspectRatio: false
-                        }}
-                    />
+                    <Bar data={data} options={graphOptions} />
                 </div>
             </div>
         );
