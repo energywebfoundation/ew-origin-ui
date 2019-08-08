@@ -60,79 +60,12 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
 
         this.setSelectedTimeFrame = this.setSelectedTimeFrame.bind(this);
         this.changeSelectedTimeFrame = this.changeSelectedTimeFrame.bind(this);
-
-        this.getFormattedReadings = this.getFormattedReadings.bind(this);
     }
 
     async componentDidMount() {
         const readings: ProducingAsset.ISmartMeterRead[] = await this.props.producingAsset.getSmartMeterReads();
 
         this.setState({ readings });
-    }
-
-    getFormattedReadings(timeframe: ISelectedTimeFrame) {
-        const { readings } = this.state;
-        const formatted = [];
-
-        let measurementUnit;
-        let amount;
-        let keyFormat;
-        let endDate;
-
-        switch (timeframe.timeframe) {
-            case TIMEFRAME.DAY:
-                measurementUnit = 'hour';
-                amount = 24;
-                keyFormat = 'HH';
-                endDate = moment(timeframe.endDate).endOf('day');
-                break;
-
-            case TIMEFRAME.WEEK:
-                measurementUnit = 'day';
-                amount = 7;
-                keyFormat = 'ddd D MMM';
-                endDate = moment(timeframe.endDate).endOf('week');
-                break;
-
-            case TIMEFRAME.MONTH:
-                measurementUnit = 'day';
-                amount = 31;
-                keyFormat = 'D MMM';
-                endDate = moment(timeframe.endDate).endOf('month');
-                break;
-
-            case TIMEFRAME.YEAR:
-                measurementUnit = 'month';
-                amount = 12;
-                keyFormat = 'MMM';
-                endDate = moment(timeframe.endDate).endOf('year');
-                break;
-        }
-
-        let currentIndex = 0;
-
-        while (currentIndex < amount) {
-            const currentDate = endDate.clone().subtract(currentIndex, measurementUnit);
-            let totalEnergy = 0;
-
-            for (const reading of readings) {
-                const readingDate = moment.unix(reading.timestamp);
-
-                if (readingDate.isSame(currentDate, measurementUnit)) {
-                    totalEnergy += reading.energy;
-                }
-            }
-
-            formatted.push({
-                label: measurementUnit !== 'hour' ? currentDate.format(keyFormat) : `${currentDate.format(keyFormat)}:00`,
-                color: '#8059a6',
-                value: totalEnergy
-            });
-
-            currentIndex += 1;
-        }
-
-        return formatted.reverse();
     }
 
     setSelectedTimeFrame(timeframe: ISelectedTimeFrame) {
@@ -175,19 +108,111 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         });
     }
 
+    get formattedReadings() {
+        const { readings, selectedTimeFrame: {
+            endDate, timeframe
+        } } = this.state;
+        const formatted = [];
+
+        let measurementUnit;
+        let amount;
+        let keyFormat;
+        let chartEndDate;
+
+        switch (timeframe) {
+            case TIMEFRAME.DAY:
+                measurementUnit = 'hour';
+                amount = 24;
+                keyFormat = 'HH';
+                chartEndDate = moment(endDate).endOf('day');
+                break;
+
+            case TIMEFRAME.WEEK:
+                measurementUnit = 'day';
+                amount = 7;
+                keyFormat = 'ddd D MMM';
+                chartEndDate = moment(endDate).endOf('week');
+                break;
+
+            case TIMEFRAME.MONTH:
+                measurementUnit = 'day';
+                amount = moment(endDate).daysInMonth();
+                keyFormat = 'D MMM';
+                chartEndDate = moment(endDate).endOf('month');
+                break;
+
+            case TIMEFRAME.YEAR:
+                measurementUnit = 'month';
+                amount = 12;
+                keyFormat = 'MMM';
+                chartEndDate = moment(endDate).endOf('year');
+                break;
+        }
+
+        let currentIndex = 0;
+
+        while (currentIndex < amount) {
+            const currentDate = chartEndDate.clone().subtract(currentIndex, measurementUnit);
+            let totalEnergy = 0;
+
+            for (const reading of readings) {
+                const readingDate = moment.unix(reading.timestamp);
+
+                if (readingDate.isSame(currentDate, measurementUnit)) {
+                    totalEnergy += reading.energy;
+                }
+            }
+
+            formatted.push({
+                label: measurementUnit !== 'hour' ? currentDate.format(keyFormat) : `${currentDate.format(keyFormat)}:00`,
+                color: '#8059a6',
+                value: totalEnergy
+            });
+
+            currentIndex += 1;
+        }
+
+        return formatted.reverse();
+    }
+
+    get currentRangeInfo(): string {
+        const { selectedTimeFrame: {
+            timeframe, endDate
+        } } = this.state;
+
+        let rangeString;
+
+        switch (timeframe) {
+            case TIMEFRAME.DAY:
+                rangeString = moment(endDate).format('D MMM YYYY');
+                break;
+
+            case TIMEFRAME.WEEK:
+                rangeString = `${moment(endDate).startOf('week').format('D MMM YYYY')} - ${moment(endDate).endOf('week').format('D MMM YYYY')}`;
+                break;
+
+            case TIMEFRAME.MONTH:
+                rangeString = moment(endDate).format('MMM YYYY');
+                break;
+
+            case TIMEFRAME.YEAR:
+                rangeString = moment(endDate).format('YYYY');
+                break;
+        }
+
+        return rangeString;
+    }
+
     render() {
         const { selectedTimeFrame, graphOptions } = this.state;
-        console.log({selectedTimeFrame});
-
-        const formattedData = this.getFormattedReadings(selectedTimeFrame);
 
         const data = {
-            labels: formattedData.map(entry => entry.label),
+            labels: this.formattedReadings.map(entry => entry.label),
             datasets: [
                 {
                     label: 'Power (Wh)',
-                    backgroundColor: formattedData.map(entry => entry.color),
-                    data: formattedData.map(entry => entry.value)
+                    backgroundColor: this.formattedReadings.map(entry => entry.color),
+                    data: this.formattedReadings.map(entry => entry.value)
                 }
             ]
         };
@@ -211,6 +236,11 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                 </Button>
             );
         });
+
+        graphOptions['title'] = {
+            display: true,
+            text: this.currentRangeInfo
+        };
 
         return (
             <div className="smartMeterReadingsChart text-center">
@@ -241,7 +271,7 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                 </div>
 
                 <div className="graph">
-                    <Bar data={data} options={graphOptions} />
+                    <Bar data={data} options={graphOptions} redraw={true} />
                 </div>
             </div>
         );
