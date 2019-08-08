@@ -1,0 +1,24 @@
+.smartMeterReadingsChart {
+    & .button-switcher {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.267125);
+    
+        button {
+            background: #654784;
+            color: white;
+            font-size: 14px;
+    
+            &:hover, &.selected {
+                background: #593e74;
+            }
+    
+            &:focus {
+                outline: none;
+                box-shadow: none;
+            }
+        }
+    }
+
+    & .graph {
+        height: 300px;
+    }
+}

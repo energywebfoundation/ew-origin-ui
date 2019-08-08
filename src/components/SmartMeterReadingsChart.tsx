@@ -6,6 +6,8 @@ import { ButtonGroup, Button } from 'react-bootstrap';
 import { Configuration } from 'ew-utils-general-lib';
 import { ProducingAsset } from 'ew-asset-registry-lib';
 
+import './SmartMeterReadingsChart.scss';
+
 enum TIMEFRAME {
     DAY = 'Day',
     WEEK = 'Week',
@@ -88,14 +90,15 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
             }
 
             formatted.push({
-                label: currentDate.format(keyFormat),
+                label: timeframe !== 'hour' ? currentDate.format(keyFormat) : `${currentDate.format(keyFormat)}:00`,
+                color: '#8059a6',
                 value: totalEnergy
             });
 
             currentIndex += 1;
         }
 
-        return formatted;
+        return formatted.reverse();
     }
 
     setSelectedTimeFrame(timeframe) {
@@ -109,15 +112,15 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         const { selectedTimeFrame, formattedReadings } = this.state;
         console.log({selectedTimeFrame, formattedReadings})
 
-        const labels = formattedReadings[selectedTimeFrame].map(entry => entry.label);
-        const values = formattedReadings[selectedTimeFrame].map(entry => entry.value);
+        const formattedData = formattedReadings[selectedTimeFrame];
 
         const data = {
-            labels,
+            labels: formattedData.map(entry => entry.label),
             datasets: [
                 {
                     label: 'Power (Wh)',
-                    data: values
+                    backgroundColor: formattedData.map(entry => entry.color),
+                    data: formattedData.map(entry => entry.value)
                 }
             ]
         };
@@ -125,24 +128,28 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
         const availableTimeFrames = Object.keys(TIMEFRAME);
 
         return (
-            <div className="smartMeterReadingsChart">
+            <div className="smartMeterReadingsChart text-center">
                 <ButtonGroup
                     aria-label="Basic example"
+                    className="button-switcher mb-4"
                 >
                     {availableTimeFrames.map(
                         (timeframe, index) => <Button
                             key={index}
                             onClick={() => this.setSelectedTimeFrame(timeframe)}
+                            className={selectedTimeFrame === TIMEFRAME[timeframe] ? 'selected' : ''}
                             variant="primary">
                                 {TIMEFRAME[timeframe]}
                         </Button>
                     )}
                 </ButtonGroup>
 
-                <Bar
-                    data={data}
-                    options={{ maintainAspectRatio: false }}
-                />
+                <div className="graph">
+                    <Bar
+                        data={data}
+                        options={{ maintainAspectRatio: false }}
+                    />
+                </div>
             </div>
         );
     }
