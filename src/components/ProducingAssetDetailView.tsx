@@ -300,26 +300,26 @@ export class ProducingAssetDetailView extends React.Component<IDetailViewProps, 
                     <div className="PageContentWrapper">
                         {pageBody}
 
-                        <div className="PageHeader my-4">
-                            <div className="PageTitle">
+                        <div className="PageBody p-4">
+                            <div className="PageBodyTitle">
                                 Smart meter readings
                             </div>
-                        </div>
 
-                        <div className="PageBody container-fluid p-4">
-                            <div className="row">
-                                <div className="col-lg-4">
-                                    <SmartMeterReadingsTable
-                                        conf={this.props.conf}
-                                        producingAsset={selectedAsset}
-                                    />
-                                </div>
+                            <div className="container-fluid">
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <SmartMeterReadingsTable
+                                            conf={this.props.conf}
+                                            producingAsset={selectedAsset}
+                                        />
+                                    </div>
 
-                                <div className="col-lg-8">
-                                    <SmartMeterReadingsChart
-                                        conf={this.props.conf}
-                                        producingAsset={selectedAsset}
-                                    />
+                                    <div className="col-lg-8">
+                                        <SmartMeterReadingsChart
+                                            conf={this.props.conf}
+                                            producingAsset={selectedAsset}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
