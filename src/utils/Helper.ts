@@ -37,3 +37,9 @@ export function dataTest(value, name = 'data-test') {
 export function dataTestSelector(value, name = 'data-test') {
     return `[${name}="${value}"]`;
 }
+
+export function getPropertyByPath(obj, path) {
+    return path.split('.').reduce((prev, curr) => {
+        return prev ? prev[curr] : null
+    }, obj || self);
+}

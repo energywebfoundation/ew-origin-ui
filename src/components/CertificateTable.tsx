@@ -25,15 +25,15 @@ import { Demand } from 'ew-market-lib';
 import { Configuration, TimeFrame, Currency } from 'ew-utils-general-lib';
 import { MatcherLogic } from 'ew-market-matcher';
 
-import TableUtils from '../elements/utils/TableUtils';
+import TableUtils from './Table/TableUtils';
 import { showNotification, NotificationType } from '../utils/notifications';
 import { PublishForSaleModal } from '../elements/Modal/PublishForSaleModal';
 import { BuyCertificateModal } from '../elements/Modal/BuyCertificateModal';
 import { BuyCertificateBulkModal } from '../elements/Modal/BuyCertificateBulkModal';
 import { Erc20TestToken } from 'ew-erc-test-contracts';
-import { PaginatedLoader, DEFAULT_PAGE_SIZE, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from '../elements/Table/PaginatedLoader';
+import { PaginatedLoader, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues, getInitialPaginatedLoaderState, RECORD_INDICATOR, FILTER_SPECIAL_TYPES } from './Table/PaginatedLoader';
 import { IBatchableAction } from './Table/ColumnBatchActions';
-import { AdvancedTable } from '../elements/Table/AdvancedTable';
+import { AdvancedTable } from './Table/AdvancedTable';
 
 export interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -42,7 +42,6 @@ export interface ICertificateTableProps {
     currentUser: User;
     baseUrl: string;
     selectedState: SelectedState;
-    switchedToOrganization: boolean;
     demand?: Demand.Entity;
 }
 
@@ -93,8 +92,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         super(props);
 
         this.state = {
-            paginatedData: [],
-            formattedPaginatedData: [],
+            ...getInitialPaginatedLoaderState(),
             selectedState: SelectedState.Inbox,
             selectedCertificates: [],
             detailViewForCertificateId: null,
@@ -109,9 +107,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             showBuyModal: false,
             buyModalForCertificate: null,
             buyModalForProducingAsset: null,
-            showBuyBulkModal: false,
-            pageSize: DEFAULT_PAGE_SIZE,
-            total: 0
+            showBuyBulkModal: false
         };
 
         this.publishForSale = this.publishForSale.bind(this);
@@ -142,21 +138,18 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         }
     }
 
-    async getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
+    async getPaginatedData({ pageSize, offset, filters }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
         const enrichedData = await this.enrichData(this.props.certificates);
 
         const filteredIEnrichedCertificateData = enrichedData.filter(
-            (EnrichedCertificateData: IEnrichedCertificateData) => {
-                const ownerOf = this.props.currentUser && this.props.currentUser.id === EnrichedCertificateData.certificate.owner;
-                const claimed = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Retired;
-                const forSale = EnrichedCertificateData.certificate.forSale;
-                const forDemand = this.state.matchedCertificates.find(cert => cert.id === EnrichedCertificateData.certificate.id) !== undefined;
-                const isActive = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Active;
+            (enrichedCertificateData: IEnrichedCertificateData) => {
+                const ownerOf = this.props.currentUser && this.props.currentUser.id === enrichedCertificateData.certificate.owner;
+                const claimed = Number(enrichedCertificateData.certificate.status) === Certificate.Status.Retired;
+                const forSale = enrichedCertificateData.certificate.forSale;
+                const forDemand = this.state.matchedCertificates.find(cert => cert.id === enrichedCertificateData.certificate.id) !== undefined;
+                const isActive = Number(enrichedCertificateData.certificate.status) === Certificate.Status.Active;
 
-                if (
-                    this.props.switchedToOrganization &&
-                    EnrichedCertificateData.certificate.owner.toLowerCase() !== this.props.currentUser.id.toLowerCase()
-                ) {
+                if (!this.checkRecordPassesFilters(enrichedCertificateData, filters)) {
                     return false;
                 }
 
@@ -443,6 +436,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         const certificate = this.props.certificates.find(
             (cert: Certificate.Entity) => cert.id === certificateId.toString()
         );
+
         if (certificate) {
             let asset = this.props.producingAssets.find(
                 (a: ProducingAsset.Entity) => a.id === certificate.assetId.toString()
@@ -491,6 +485,72 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
             detailViewForCertificateId: certificateId
         });
     }
+
+    filters = [
+        {
+            property: `${RECORD_INDICATOR}producingAsset.offChainProperties.assetType`,
+            label: 'Asset Type',
+            availableOptions: [
+                {
+                    label: 'Solar',
+                    value: ProducingAsset.Type.Solar
+                },
+                {
+                    label: 'Wind',
+                    value: ProducingAsset.Type.Wind
+                },
+                {
+                    label: 'Biomass Gas',
+                    value: ProducingAsset.Type.BiomassGas
+                },
+                {
+                    label: 'Hydro',
+                    value: ProducingAsset.Type.RunRiverHydro
+                }
+            ],
+            defaultOptions: [
+                ProducingAsset.Type.Solar,
+                ProducingAsset.Type.Wind,
+                ProducingAsset.Type.BiomassGas,
+                ProducingAsset.Type.RunRiverHydro
+            ]
+        },
+        {
+            property: `${FILTER_SPECIAL_TYPES.DATE_YEAR}::${RECORD_INDICATOR}producingAsset.offChainProperties.operationalSince`,
+            label: 'Commissioning Date',
+            input: {
+                type: 'string'
+            }
+        },
+        {
+            property: `${FILTER_SPECIAL_TYPES.COMBINE}::${RECORD_INDICATOR}producingAsset.offChainProperties.city::, ::${RECORD_INDICATOR}producingAsset.offChainProperties.country`,
+            label: 'Town, Country',
+            input: {
+                type: 'string'
+            }
+        },
+        {
+            property: `${RECORD_INDICATOR}certificateOwner.organization`,
+            label: 'Owner',
+            input: {
+                type: 'string'
+            }
+        },
+        // {
+        //     property: 'TODO_Cert',
+        //     label: 'Certification Date',
+        //     input: {
+        //         type: 'string'
+        //     }
+        // },
+        // {
+        //     property: 'TODO_Cert_en',
+        //     label: 'Certified Energy (kWh)',
+        //     input: {
+        //         type: 'string'
+        //     }
+        // }
+    ]
 
     async operationClicked(key: string, id: number) {
         switch (key) {
@@ -636,6 +696,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
                     pageSize={this.state.pageSize}
                     batchableActions={batchableActions}
                     customSelectCounterGenerator={this.customSelectCounterGenerator}
+                    filters={this.filters}
                 />
 
                 <PublishForSaleModal
