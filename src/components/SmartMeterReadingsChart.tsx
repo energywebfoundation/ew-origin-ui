@@ -221,7 +221,7 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                 <Button
                     key={index}
                     onClick={onClick}
-                    className={isCurrentlySelected ? 'selected' : ''}
+                    className={`btn-switcher-btn ${isCurrentlySelected ? 'selected' : ''}`}
                     variant="primary"
                 >
                     {TIMEFRAME[timeframe]}
@@ -247,7 +247,7 @@ export class SmartMeterReadingsChart extends React.Component<ISmartMeterReadings
                     </div>
 
                     <div className="col-lg-8">
-                        <ButtonGroup className="button-switcher">
+                        <ButtonGroup className="btn-switcher">
                             {timeFrameButtons}
                         </ButtonGroup>
                     </div>
