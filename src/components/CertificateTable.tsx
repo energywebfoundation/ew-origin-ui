@@ -34,6 +34,7 @@ import { Erc20TestToken } from 'ew-erc-test-contracts';
 import { PaginatedLoader, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues, getInitialPaginatedLoaderState, RECORD_INDICATOR, FILTER_SPECIAL_TYPES } from './Table/PaginatedLoader';
 import { IBatchableAction } from './Table/ColumnBatchActions';
 import { AdvancedTable } from './Table/AdvancedTable';
+import { ICustomFilterDefinition, CustomFilterInputType } from './Table/FiltersHeader';
 
 export interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -486,71 +487,90 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
         });
     }
 
-    filters = [
-        {
-            property: `${RECORD_INDICATOR}producingAsset.offChainProperties.assetType`,
-            label: 'Asset Type',
-            availableOptions: [
-                {
-                    label: 'Solar',
-                    value: ProducingAsset.Type.Solar
-                },
-                {
-                    label: 'Wind',
-                    value: ProducingAsset.Type.Wind
-                },
-                {
-                    label: 'Biomass Gas',
-                    value: ProducingAsset.Type.BiomassGas
-                },
-                {
-                    label: 'Hydro',
-                    value: ProducingAsset.Type.RunRiverHydro
+    get filters(): ICustomFilterDefinition[] {
+        if (this.props.selectedState !== SelectedState.ForSale) {
+            return [];
+        }
+
+        const maxCertificateEnergyInkWh = this.props.certificates.reduce((a, b) => parseInt(b.powerInW.toString(), 10) > a ? parseInt(b.powerInW.toString(), 10) : a, 0) / 1000;
+
+        const filters = [
+            {
+                property: `${RECORD_INDICATOR}producingAsset.offChainProperties.assetType`,
+                label: 'Asset Type',
+                input: {
+                    type: CustomFilterInputType.multiselect,
+                    availableOptions: [
+                        {
+                            label: 'Solar',
+                            value: ProducingAsset.Type.Solar
+                        },
+                        {
+                            label: 'Wind',
+                            value: ProducingAsset.Type.Wind
+                        },
+                        {
+                            label: 'Biomass Gas',
+                            value: ProducingAsset.Type.BiomassGas
+                        },
+                        {
+                            label: 'Hydro',
+                            value: ProducingAsset.Type.RunRiverHydro
+                        }
+                    ],
+                    defaultOptions: [
+                        ProducingAsset.Type.Solar,
+                        ProducingAsset.Type.Wind,
+                        ProducingAsset.Type.BiomassGas,
+                        ProducingAsset.Type.RunRiverHydro
+                    ]
                 }
-            ],
-            defaultOptions: [
-                ProducingAsset.Type.Solar,
-                ProducingAsset.Type.Wind,
-                ProducingAsset.Type.BiomassGas,
-                ProducingAsset.Type.RunRiverHydro
-            ]
-        },
-        {
-            property: `${FILTER_SPECIAL_TYPES.DATE_YEAR}::${RECORD_INDICATOR}producingAsset.offChainProperties.operationalSince`,
-            label: 'Commissioning Date',
-            input: {
-                type: 'string'
+            },
+            {
+                property: `${FILTER_SPECIAL_TYPES.DATE_YEAR}::${RECORD_INDICATOR}producingAsset.offChainProperties.operationalSince`,
+                label: 'Commissioning Date',
+                input: {
+                    type: CustomFilterInputType.dropdown,
+                    availableOptions: (new Array(40)).fill(moment().year()).map((item, index) => ({
+                        label: (item - index).toString(),
+                        value: item - index
+                    }))
+                }
+            },
+            {
+                property: `${FILTER_SPECIAL_TYPES.COMBINE}::${RECORD_INDICATOR}producingAsset.offChainProperties.city::, ::${RECORD_INDICATOR}producingAsset.offChainProperties.country`,
+                label: 'Town, Country',
+                input: {
+                    type: CustomFilterInputType.string
+                }
+            },
+            {
+                property: `${RECORD_INDICATOR}certificateOwner.organization`,
+                label: 'Owner',
+                input: {
+                    type: CustomFilterInputType.string
+                }
+            },
+            // {
+            //     property: 'TODO_Cert',
+            //     label: 'Certification Date',
+            //     input: {
+            //         type: 'string'
+            //     }
+            // },
+            {
+                property: `${FILTER_SPECIAL_TYPES.DIVIDE}::${RECORD_INDICATOR}certificate.powerInW::1000`,
+                label: 'Certified Energy (kWh)',
+                input: {
+                    type: CustomFilterInputType.slider,
+                    min: 0,
+                    max: maxCertificateEnergyInkWh
+                }
             }
-        },
-        {
-            property: `${FILTER_SPECIAL_TYPES.COMBINE}::${RECORD_INDICATOR}producingAsset.offChainProperties.city::, ::${RECORD_INDICATOR}producingAsset.offChainProperties.country`,
-            label: 'Town, Country',
-            input: {
-                type: 'string'
-            }
-        },
-        {
-            property: `${RECORD_INDICATOR}certificateOwner.organization`,
-            label: 'Owner',
-            input: {
-                type: 'string'
-            }
-        },
-        // {
-        //     property: 'TODO_Cert',
-        //     label: 'Certification Date',
-        //     input: {
-        //         type: 'string'
-        //     }
-        // },
-        // {
-        //     property: 'TODO_Cert_en',
-        //     label: 'Certified Energy (kWh)',
-        //     input: {
-        //         type: 'string'
-        //     }
-        // }
-    ]
+        ];
+
+        return filters;
+    }
 
     async operationClicked(key: string, id: number) {
         switch (key) {

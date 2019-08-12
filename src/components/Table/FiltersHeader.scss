@@ -29,6 +29,8 @@
 
         &_item {
             padding: 10px;
+            align-items: center;
+            display: flex;
 
             &_label {
                 color: rgba(255, 255, 255, 0.7);
@@ -37,7 +39,7 @@
             }
 
             &_options {
-                display: flex;
+                display: inline-flex;
                 margin-top: 10px;
 
                 &_option {
@@ -64,6 +66,13 @@
             &_input {
                 max-width: 300px;
                 display: inline-block;
+                height: 40px;
+            }
+
+            &_sliderWrapper {
+                width: 300px;
+                display: inline-block;
+                padding-top: 20px;
             }
 
             &:nth-of-type(n + 2) {

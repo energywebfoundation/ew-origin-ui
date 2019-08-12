@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import './FiltersHeader.scss';
 import { FilterIcon } from '../icons/FilterIcon';
+import { IndividualFilter } from './IndividualFilter';
 
-interface ICustomFilterInput {
-    type: string;
+export enum CustomFilterInputType {
+    string = 'string',
+    multiselect = 'multiselect',
+    dropdown = 'dropdown',
+    slider = 'slider'
 }
 
 interface ICustomFilterAvailableOption {
@@ -11,16 +15,18 @@ interface ICustomFilterAvailableOption {
     value: any;
 }
 
-interface ICustomFilterOption extends ICustomFilterAvailableOption {
-    selected: boolean;
+interface ICustomFilterInput {
+    type: CustomFilterInputType;
+    availableOptions?: ICustomFilterAvailableOption[];
+    defaultOptions?: any[];
+    min?: number;
+    max?: number;
 }
 
 export interface ICustomFilterDefinition {
     property: string;
     label: string;
-    availableOptions?: ICustomFilterAvailableOption[];
-    defaultOptions?: any[];
-    input?: ICustomFilterInput;
+    input: ICustomFilterInput;
 }
 
 export interface ICustomFilter extends ICustomFilterDefinition {
@@ -45,15 +51,8 @@ export class FiltersHeader extends Component<IProps, IState> {
             menuShown: false,
             processedFilters: []
         };
-    }
 
-    toggleOption(targetFilter: ICustomFilter, value: any) {
-        let selectedOptions: any[] = targetFilter.selectedValue;
-
-        selectedOptions = selectedOptions.includes(value) ?
-            selectedOptions.filter(o => o !== value) : [...selectedOptions, value];
-
-        this.changeFilterValue(targetFilter, selectedOptions);
+        this.changeFilterValue = this.changeFilterValue.bind(this);
     }
 
     changeFilterValue(targetFilter: ICustomFilter, selectedValue: any) {
@@ -79,10 +78,19 @@ export class FiltersHeader extends Component<IProps, IState> {
     }
 
     setupProcessedFilters() {
-        const processedFilters: ICustomFilter[] = this.props.filters.map(filter => ({
-            ...filter,
-            selectedValue: filter.defaultOptions
-        }));
+        const processedFilters: ICustomFilter[] = this.props.filters.map(filter => {
+            if (filter.input.type === CustomFilterInputType.multiselect) {
+                return {
+                    ...filter,
+                    selectedValue: filter.input.defaultOptions
+                };
+            }
+
+            return {
+                ...filter,
+                selectedValue: null
+            };
+        });
 
         this.setState({
             processedFilters
@@ -107,6 +115,10 @@ export class FiltersHeader extends Component<IProps, IState> {
             processedFilters
         } = this.state;
 
+        if (processedFilters.length === 0) {
+            return null;
+        }
+
         return processedFilters && <div className="FiltersHeader">
             <div className={`Filter ${menuShown ? 'Filter-opened' : ''}`} onClick={() => this.setState({ menuShown: !menuShown })}>
                 <div className="Filter_icon"><FilterIcon /></div>
@@ -114,20 +126,9 @@ export class FiltersHeader extends Component<IProps, IState> {
             </div>
             {menuShown && <div className="Filter_menu">
                 {processedFilters.map((filter, index) => {
-                    const filterOptions: ICustomFilterOption[] = filter.availableOptions && filter.availableOptions.map(option => ({
-                        ...option,
-                        selected: (filter.selectedValue as any[]).includes(option.value)
-                    }));
-
                     return <div className="Filter_menu_item" key={index}>
                         <div className="Filter_menu_item_label">{filter.label}</div>
-                        {filter.availableOptions && <div className="Filter_menu_item_options">
-                            {filterOptions.map((option, index) =>
-                                <div onClick={() => this.toggleOption(filter, option.value)} className={`Filter_menu_item_options_option ${option.selected ? 'Filter_menu_item_options_option-selected' : ''}`} key={index}>
-                                    <div className="Filter_menu_item_options_option_label">{option.label}</div>
-                                </div>)}
-                        </div>}
-                        {filter.input && <input className="Filter_menu_item_input modal-input" onChange={(e) => this.changeFilterValue(filter, e.target.value)} />}
+                        <IndividualFilter filter={filter} changeFilterValue={this.changeFilterValue} />
                     </div>
                 })}
             </div>}

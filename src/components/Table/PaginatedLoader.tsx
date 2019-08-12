@@ -1,5 +1,5 @@
 import { Component, ReactText } from 'react';
-import { ICustomFilter } from './FiltersHeader';
+import { ICustomFilter, CustomFilterInputType } from './FiltersHeader';
 import { getPropertyByPath } from '../../utils/Helper';
 import moment from 'moment';
 
@@ -51,7 +51,8 @@ function indexOfEnd(baseString: string, searchString: string) {
 
 export enum FILTER_SPECIAL_TYPES {
     COMBINE = 'FILTER_COMBINE',
-    DATE_YEAR = 'FILTER_DATE_YEAR'
+    DATE_YEAR = 'FILTER_DATE_YEAR',
+    DIVIDE = 'FILTER_DIVIDE'
 };
 
 export const RECORD_INDICATOR = 'RECORD|';
@@ -75,6 +76,11 @@ const FILTER_PROPERTY_PROCESSING_FUNCTIONS = {
     },
     [FILTER_SPECIAL_TYPES.DATE_YEAR]: function(record: any, property: string) {
         return moment.unix(parseInt(getIndividualPropertyFilterValue(record, property), 10)).year();
+    },
+    [FILTER_SPECIAL_TYPES.DIVIDE]: function(record: any, ...properties: string[]) {
+        return properties.map(property => getIndividualPropertyFilterValue(record, property)).reduce(
+            (a, b, index) => index === 0 ? a : a / b
+        );
     }
 };
 
@@ -163,10 +169,31 @@ export abstract class PaginatedLoader<Props extends IPaginatedLoaderProps, State
             const filteredPropertyResolvedValue = parseFilter(record, filter.property);
 
             if (typeof(filteredPropertyResolvedValue) !== 'undefined') {
-                if (filter.input && filter.selectedValue && !filteredPropertyResolvedValue.toString().toLowerCase().includes(filter.selectedValue.toLowerCase())) {
-                    return false;
-                } else if (filter.availableOptions && !filter.selectedValue.includes(filteredPropertyResolvedValue)) {
-                    return false
+                switch (filter.input.type) {
+                    case CustomFilterInputType.string:
+                        if (filter.selectedValue && !filteredPropertyResolvedValue.toString().toLowerCase().includes(filter.selectedValue.toLowerCase())) {
+                            return false;
+                        }
+                        break;
+                    case CustomFilterInputType.multiselect:
+                        if (!filter.selectedValue.includes(filteredPropertyResolvedValue)) {
+                            return false;
+                        }
+                        break;
+                    case CustomFilterInputType.dropdown:
+                        if (filter.selectedValue && filter.selectedValue.toString() !== filteredPropertyResolvedValue.toString()) {
+                            return false;
+                        }
+                        break;
+                    case CustomFilterInputType.slider:
+                        if (filter.selectedValue) {
+                            const [min, max] = filter.selectedValue as number[];
+                            
+                            if (filteredPropertyResolvedValue < min || filteredPropertyResolvedValue > max) {
+                                return false;
+                            }
+                        }
+                        break;
                 }
             }
         }
