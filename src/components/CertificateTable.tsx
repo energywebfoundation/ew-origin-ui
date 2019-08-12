@@ -31,10 +31,11 @@ import { PublishForSaleModal } from '../elements/Modal/PublishForSaleModal';
 import { BuyCertificateModal } from '../elements/Modal/BuyCertificateModal';
 import { BuyCertificateBulkModal } from '../elements/Modal/BuyCertificateBulkModal';
 import { Erc20TestToken } from 'ew-erc-test-contracts';
-import { PaginatedLoader, IPaginatedLoaderState, IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues, getInitialPaginatedLoaderState, RECORD_INDICATOR, FILTER_SPECIAL_TYPES } from './Table/PaginatedLoader';
+import { IPaginatedLoaderFetchDataParameters, IPaginatedLoaderFetchDataReturnValues } from './Table/PaginatedLoader';
 import { IBatchableAction } from './Table/ColumnBatchActions';
 import { AdvancedTable } from './Table/AdvancedTable';
 import { ICustomFilterDefinition, CustomFilterInputType } from './Table/FiltersHeader';
+import { PaginatedLoaderFiltered, getInitialPaginatedLoaderFilteredState, IPaginatedLoaderFilteredState, RECORD_INDICATOR, FILTER_SPECIAL_TYPES } from './Table/PaginatedLoaderFiltered';
 
 export interface ICertificateTableProps {
     conf: Configuration.Entity;
@@ -55,7 +56,7 @@ export interface IEnrichedCertificateData {
     isOffChainSettlement: boolean;
 }
 
-export interface ICertificatesState extends IPaginatedLoaderState {
+export interface ICertificatesState extends IPaginatedLoaderFilteredState {
     selectedState: SelectedState;
     selectedCertificates: Certificate.Entity[];
     detailViewForCertificateId: number;
@@ -88,12 +89,12 @@ export enum OPERATIONS {
     SHOW_DETAILS = 'Show Certificate Details'
 }
 
-export class CertificateTable extends PaginatedLoader<ICertificateTableProps, ICertificatesState> {
+export class CertificateTable extends PaginatedLoaderFiltered<ICertificateTableProps, ICertificatesState> {
     constructor(props: ICertificateTableProps) {
         super(props);
 
         this.state = {
-            ...getInitialPaginatedLoaderState(),
+            ...getInitialPaginatedLoaderFilteredState(),
             selectedState: SelectedState.Inbox,
             selectedCertificates: [],
             detailViewForCertificateId: null,
