@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { ICustomFilter, CustomFilterInputType } from './FiltersHeader';
 import { CustomSlider, CustomSliderThumbComponent } from '../CustomSlider';
+import { DatePicker } from "@material-ui/pickers";
+import { InputLabel, FormControl, Select, MenuItem, TextField, FilledInput, Chip } from '@material-ui/core';
+import { Moment } from 'moment';
 
 interface IProps {
     filter: ICustomFilter;
@@ -8,15 +11,6 @@ interface IProps {
 }
 
 export class IndividualFilter extends Component<IProps> {
-    toggleOption(targetFilter: ICustomFilter, value: any) {
-        let selectedOptions: any[] = targetFilter.selectedValue;
-
-        selectedOptions = selectedOptions.includes(value) ?
-            selectedOptions.filter(o => o !== value) : [...selectedOptions, value];
-
-        this.props.changeFilterValue(targetFilter, selectedOptions);
-    }
-
     render() {
         const {
             filter
@@ -24,19 +18,50 @@ export class IndividualFilter extends Component<IProps> {
 
         switch (filter.input.type) {
             case CustomFilterInputType.string:
-                return <input className="Filter_menu_item_input modal-input" onChange={(e) => this.props.changeFilterValue(filter, e.target.value)} value={filter.selectedValue ? filter.selectedValue : ''} />
+                return <FormControl fullWidth={true} variant="filled">
+                    <TextField
+                        onChange={(e) => this.props.changeFilterValue(filter, e.target.value)}
+                        value={filter.selectedValue ? filter.selectedValue : ''}
+                        label={filter.label}
+                        fullWidth={true}
+                        variant="filled"
+                    />
+                </FormControl>;
             case CustomFilterInputType.multiselect:
-                return <div className="Filter_menu_item_options">
-                    {filter.input.availableOptions.map((option, index) =>
-                        <div onClick={() => this.toggleOption(filter, option.value)} className={`Filter_menu_item_options_option ${(filter.selectedValue as any[]).includes(option.value) ? 'Filter_menu_item_options_option-selected' : ''}`} key={index}>
-                            <div className="Filter_menu_item_options_option_label">{option.label}</div>
-                        </div>)}
-                </div>;
+                return <FormControl fullWidth={true} variant="filled">
+                    <InputLabel>{filter.label}</InputLabel>
+                    <Select
+                    multiple
+                    value={filter.selectedValue}
+                    onChange={(e) => this.props.changeFilterValue(filter, e.target.value)}
+                    input={<FilledInput />}
+                    renderValue={selected => (
+                        <>
+                        {(selected as string[]).map(value => (
+                            <Chip color="primary" key={value} label={filter.input.availableOptions.find(o => o.value === value).label} />
+                        ))}
+                        </>
+                    )}
+                    >
+                        {filter.input.availableOptions.map((option, index) => <MenuItem key={option.value} value={option.value} style={{
+                            fontWeight: filter.selectedValue.indexOf(option.value) === -1 ? 300 : 600
+                        }}>{option.label}</MenuItem>)}
+                    </Select>
+                </FormControl>
             case CustomFilterInputType.dropdown:
-                return <select onChange={(e) => this.props.changeFilterValue(filter, e.target.value)} value={filter.selectedValue ? filter.selectedValue : ''} className="Filter_menu_item_input modal-input">
-                    <option value="">Any</option>
-                    {filter.input.availableOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
-                </select>;
+                return <FormControl fullWidth={true} variant="filled">
+                    <InputLabel>{filter.label}</InputLabel>
+                    <Select
+                        value={filter.selectedValue ? filter.selectedValue : ''} 
+                        onChange={(e) => this.props.changeFilterValue(filter, e.target.value)}
+                        fullWidth={true}
+                        variant="filled"
+                        input={<FilledInput />}
+                    >
+                        <MenuItem value="">Any</MenuItem>
+                        {filter.input.availableOptions.map((option) => <MenuItem value={option.value} key={option.value}>{option.label}</MenuItem>)}
+                    </Select>
+                </FormControl>;
             case CustomFilterInputType.slider:
                 return <div className="Filter_menu_item_sliderWrapper">
                     <CustomSlider
@@ -48,6 +73,17 @@ export class IndividualFilter extends Component<IProps> {
                         onChangeCommitted={(event, value) => this.props.changeFilterValue(filter, value)}
                     />
                 </div>;
+            case CustomFilterInputType.yearMonth:
+                return <DatePicker
+                    openTo="year"
+                    views={["year", "month"]}
+                    label={filter.label}
+                    value={filter.selectedValue}
+                    onChange={(date: Moment) => this.props.changeFilterValue(filter, date)}
+                    variant="inline"
+                    inputVariant="filled"
+                    fullWidth={true}
+                  />;
         }
     }
 }

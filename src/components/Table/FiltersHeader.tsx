@@ -7,7 +7,8 @@ export enum CustomFilterInputType {
     string = 'string',
     multiselect = 'multiselect',
     dropdown = 'dropdown',
-    slider = 'slider'
+    slider = 'slider',
+    yearMonth = 'yearMonth'
 }
 
 interface ICustomFilterAvailableOption {
@@ -127,7 +128,6 @@ export class FiltersHeader extends Component<IProps, IState> {
             {menuShown && <div className="Filter_menu">
                 {processedFilters.map((filter, index) => {
                     return <div className="Filter_menu_item" key={index}>
-                        <div className="Filter_menu_item_label">{filter.label}</div>
                         <IndividualFilter filter={filter} changeFilterValue={this.changeFilterValue} />
                     </div>
                 })}

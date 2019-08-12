@@ -551,13 +551,13 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
                     type: CustomFilterInputType.string
                 }
             },
-            // {
-            //     property: 'TODO_Cert',
-            //     label: 'Certification Date',
-            //     input: {
-            //         type: 'string'
-            //     }
-            // },
+            {
+                property: `${RECORD_INDICATOR}certificate.creationTime`,
+                label: 'Certification Date',
+                input: {
+                    type: CustomFilterInputType.yearMonth
+                }
+            },
             {
                 property: `${FILTER_SPECIAL_TYPES.DIVIDE}::${RECORD_INDICATOR}certificate.powerInW::1000`,
                 label: 'Certified Energy (kWh)',

@@ -1,7 +1,7 @@
 import { Component, ReactText } from 'react';
 import { ICustomFilter, CustomFilterInputType } from './FiltersHeader';
 import { getPropertyByPath } from '../../utils/Helper';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 export const DEFAULT_PAGE_SIZE = 25;
 
@@ -194,6 +194,18 @@ export abstract class PaginatedLoader<Props extends IPaginatedLoaderProps, State
                             }
                         }
                         break;
+                    case CustomFilterInputType.yearMonth:
+                            if (filter.selectedValue) {
+                                const year = (filter.selectedValue as Moment).year();
+                                const month = (filter.selectedValue as Moment).month();
+
+                                const recordDate = moment.unix(filteredPropertyResolvedValue);
+                                
+                                if (recordDate.month() !== month || recordDate.year() !== year) {
+                                    return false;
+                                }
+                            }
+                            break;
                 }
             }
         }

@@ -5,7 +5,6 @@ import { STYLE_CONFIG } from '../styles/styleConfig';
 
 export const CustomSlider = withStyles({
     root: {
-      color: STYLE_CONFIG.PRIMARY_COLOR,
       height: 3,
       padding: '13px 0',
     },

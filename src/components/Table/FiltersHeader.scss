@@ -30,53 +30,13 @@
         &_item {
             padding: 10px;
             align-items: center;
-            display: flex;
-
-            &_label {
-                color: rgba(255, 255, 255, 0.7);
-                display: inline-block;
-                min-width: 280px;
-            }
-
-            &_options {
-                display: inline-flex;
-                margin-top: 10px;
-
-                &_option {
-                    display: flex;
-                    line-height: 30px;
-                    padding-right: 10px;
-                    align-items: center;
-                    margin-right: 6px;
-                    font-size: 12px;
-                    padding: 4px 12px;
-                    background: #474747;
-                    cursor: pointer;
-
-                    &:hover {
-                        background: #8d64b8;
-                    }
-
-                    &-selected {
-                        background: #894ec5;
-                    }
-                }
-            }
-
-            &_input {
-                max-width: 300px;
-                display: inline-block;
-                height: 40px;
-            }
+            display: inline-flex;
+            width: 50%;
+            position: relative;
 
             &_sliderWrapper {
-                width: 300px;
-                display: inline-block;
-                padding-top: 20px;
-            }
-
-            &:nth-of-type(n + 2) {
-                border-top: 1px solid #474747;
+                width: calc(100% - 28px);
+                margin-left: 14px;
             }
         }
     }
