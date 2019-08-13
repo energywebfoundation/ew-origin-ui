@@ -33,10 +33,17 @@
             display: inline-flex;
             width: 50%;
             position: relative;
+            vertical-align: top;
 
             &_sliderWrapper {
                 width: calc(100% - 28px);
-                margin-left: 14px;
+                display: inline-flex;
+                flex-direction: column;
+
+                .MuiSlider-root {
+                    margin-top: 15px;
+                    margin-left: 13px;
+                }
             }
         }
     }

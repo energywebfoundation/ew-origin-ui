@@ -16,6 +16,10 @@ export class IndividualFilter extends Component<IProps> {
             filter
         } = this.props;
 
+        if (!filter) {
+            return null;
+        }
+
         switch (filter.input.type) {
             case CustomFilterInputType.string:
                 return <FormControl fullWidth={true} variant="filled">
@@ -64,6 +68,7 @@ export class IndividualFilter extends Component<IProps> {
                 </FormControl>;
             case CustomFilterInputType.slider:
                 return <div className="Filter_menu_item_sliderWrapper">
+                    <InputLabel shrink={true}>{filter.label}</InputLabel>
                     <CustomSlider
                         valueLabelDisplay="on"
                         defaultValue={filter.selectedValue || [filter.input.min, filter.input.max]}
