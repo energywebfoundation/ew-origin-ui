@@ -10,7 +10,6 @@ export const STYLE_CONFIG = {
 };
 
 export const DEFAULT_MATERIAL_THEME = () => {
-    console.log(STYLE_CONFIG.PRIMARY_COLOR);
     return createMuiTheme({
         palette: {
         primary: {
