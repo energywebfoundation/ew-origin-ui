@@ -4,13 +4,13 @@
         "sourceMap": true,
         "noImplicitAny": false,
         "moduleResolution": "node",
-        "module": "esnext",
-        "target": "esnext",
+        "module": "es2015",
+        "target": "es2018",
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "lib": ["es2017", "dom"]
+        "lib": ["es2018", "dom"]
     },
     "include": [
         "./src/**/*"
