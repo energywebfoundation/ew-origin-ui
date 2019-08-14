@@ -1,7 +1,10 @@
 import { createMuiTheme } from "@material-ui/core";
+import variables from './variables.scss';
 
 export const STYLE_CONFIG = {
-    PRIMARY_COLOR: '#ba77ff',
+    PRIMARY_COLOR: variables.primaryColor,
+    PRIMARY_COLOR_DARK: variables.primaryColorDark,
+    PRIMARY_COLOR_DARKER: variables.primaryColorDarker,
     GRAY_BORDER_COLOR: '#858585',
     WHITE: '#fff'
 };
