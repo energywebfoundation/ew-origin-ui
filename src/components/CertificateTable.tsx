@@ -125,29 +125,7 @@ export class CertificateTable extends PaginatedLoader<ICertificateTableProps, IC
     async getPaginatedData({ pageSize, offset }: IPaginatedLoaderFetchDataParameters): Promise<IPaginatedLoaderFetchDataReturnValues> {
         const enrichedData = await this.enrichData(this.props.certificates);        
 
-        const filteredIEnrichedCertificateData = enrichedData.filter(
-            (EnrichedCertificateData: IEnrichedCertificateData) => {
-                const ownerOf = this.props.currentUser && this.props.currentUser.id === EnrichedCertificateData.certificate.owner;
-                const claimed = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Retired;
-                const forSale = EnrichedCertificateData.certificate.forSale;
-                const forDemand = this.state.matchedCertificates.find(cert => cert.id === EnrichedCertificateData.certificate.id) !== undefined;
-                const isActive = Number(EnrichedCertificateData.certificate.status) === Certificate.Status.Active;
-
-                if (
-                    this.props.switchedToOrganization &&
-                    EnrichedCertificateData.certificate.owner.toLowerCase() !== this.props.currentUser.id.toLowerCase()
-                ) {
-                    return false;
-                }
-
-                return (
-                    (isActive && ownerOf && !forSale && this.props.selectedState === SelectedState.Inbox) ||
-                    (claimed && this.props.selectedState === SelectedState.Claimed) ||
-                    (isActive && forSale && this.props.selectedState === SelectedState.ForSale) ||
-                    (isActive && forSale && forDemand && this.props.selectedState === SelectedState.ForDemand)
-                );
-            }
-        );
+        const filteredIEnrichedCertificateData = enrichedData;
 
         const certificates = filteredIEnrichedCertificateData.slice(offset, offset + pageSize);
         const total = filteredIEnrichedCertificateData.length;

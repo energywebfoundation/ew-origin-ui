@@ -4,6 +4,7 @@ import * as EwUser from 'ew-user-registry-lib';
 import * as General from 'ew-utils-general-lib';
 import { Certificate } from 'ew-origin-lib';
 import { Supply, Agreement } from 'ew-market-lib';
+import { Erc20TestToken } from 'ew-erc-test-contracts';
 
 import './ApproveCertificate.scss'
 import { Moment } from 'moment';
@@ -46,6 +47,33 @@ export class ApproveCertificate extends React.Component<Props, State> {
             return c.id === certificateId.toString();
         });
 
+        const priceInDAI = await certificate.getFlexibilityTotalPriceInDAI();
+        const tokenAddress = await certificate.tokenAddress();
+        const tokenReceiver = await certificate.tokenReceiver();
+        const tokenHolder = await certificate.tokenHolder();
+        const certificateLogicAddress = certificate.configuration.blockchainProperties.certificateLogicInstance.web3Contract._address;
+
+        console.log('approveCertificate', {
+            priceInDAI,
+            tokenAddress,
+            tokenReceiver,
+            tokenHolder,
+            certificateLogicAddress
+        });
+
+        const token = new Erc20TestToken(
+            this.props.conf.blockchainProperties.web3,
+            tokenAddress
+        );
+
+        const allowance = await token.allowance(tokenHolder, certificateLogicAddress);
+
+        console.log(`token.allowance(${tokenHolder}, ${certificateLogicAddress})`);
+
+        console.log('token', {
+            allowance
+        });
+
         await certificate.approveFlexibility();
     }
 
@@ -69,10 +97,20 @@ export class ApproveCertificate extends React.Component<Props, State> {
         if (certificate) {
             await certificate.sync();
 
+            const totalFlexibilityPrice = await certificate.getFlexibilityTotalPriceInEUR();
+
+            const supply = this.props.supplies.find((s: Supply.Entity) => {
+                return s.id.toString() === certificate.supplyId.toString();
+            });
+
+            console.log({
+                totalFlexibilityPrice
+            });
+
             console.log('getReportedFlex', certificate.powerInW, certificate);
     
             try {
-                reportedFlexibility = await this.parseFlexibility(certificate);
+                reportedFlexibility = await this.parseFlexibility(certificate, totalFlexibilityPrice, supply && supply.price.toString());
             } catch (error) {
     
             }    
@@ -83,15 +121,13 @@ export class ApproveCertificate extends React.Component<Props, State> {
         });
     }
 
-    async parseFlexibility(flexibility: Certificate.Entity): Promise<string> {
+    async parseFlexibility(flexibility: Certificate.Entity, totalFlexibilityPrice: string, supplyPrice: string): Promise<string> {
         const information = [];
 
         console.log('parseFlexibility', {
             flexibility,
             supplyId: flexibility.supplyId
         });
-
-        
 
         if (typeof(flexibility.approved) !== 'undefined') {
             information.push(`Report confirmed: ${flexibility.approved}`);
@@ -125,6 +161,14 @@ export class ApproveCertificate extends React.Component<Props, State> {
 
         if (typeof(flexibility.powerProfileHash) !== 'undefined') {
             information.push(`Power profile hash: ${flexibility.powerProfileHash}`);
+        }
+
+        if (typeof(supplyPrice) !== 'undefined') {
+            information.push(`Supply price per kWh: ${parseInt(supplyPrice, 10) / 100} EUR`);
+        }
+
+        if (typeof(totalFlexibilityPrice) !== 'undefined') {
+            information.push(`Total price: ${parseInt(totalFlexibilityPrice, 10) / 10**18} EUR`);
         }
 
         try {
