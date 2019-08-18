@@ -13,7 +13,7 @@ interface AccountChangedModalProps {
     disableAccountChangedModal: TDisableAccountChangedModal;
 }
 
-export class AccountChangedModalClass extends React.Component<AccountChangedModalProps, any> {
+class AccountChangedModalClass extends React.Component<AccountChangedModalProps> {
     constructor(props: AccountChangedModalProps) {
         super(props);
 
