@@ -71,7 +71,7 @@ function isDemandDeleted(demand: Demand.Entity) {
 }
 
 enum ERROR {
-    WRONG_NETWORK_OR_CONTRACT_ADDRESS = "Please make sure you've chosen correct blockchain network and the contract address is correct."
+    WRONG_NETWORK_OR_CONTRACT_ADDRESS = "Please make sure you've chosen correct blockchain network and the contract address is valid."
 }
 
 class AppContainerClass extends React.Component<IAppContainerProps, IAppContainerState> {
