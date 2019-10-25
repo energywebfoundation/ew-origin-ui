@@ -12,6 +12,12 @@ interface ICreateSupplyProps {
     producingAssets: ProducingAsset.Entity[];
 }
 
+async function getMetaMaskAccount() {
+    return new Promise(resolve => {
+        (window as any).web3.eth.getAccounts((error, accounts) => resolve(accounts[0]))
+    });
+}
+
 export class SaveRead extends React.Component<ICreateSupplyProps, {}> {
     constructor(props) {
         super(props);
@@ -25,7 +31,7 @@ export class SaveRead extends React.Component<ICreateSupplyProps, {}> {
 
         try {
             this.props.configuration.blockchainProperties.activeUser = {
-                address: this.props.currentUser.id
+                address: (this.props.currentUser && this.props.currentUser.id) || await getMetaMaskAccount()
             };
 
             await producingAsset.saveSmartMeterRead(
