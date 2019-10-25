@@ -25,6 +25,12 @@ interface State {
     reportedFlexibility: string;
 }
 
+async function getMetaMaskAccount() {
+    return new Promise(resolve => {
+        (window as any).web3.eth.getAccounts((error, accounts) => resolve(accounts[0]))
+    });
+}
+
 export class ApproveCertificate extends React.Component<Props, State> {
 
     constructor(props: Props) {
@@ -85,7 +91,7 @@ export class ApproveCertificate extends React.Component<Props, State> {
         });
 
         this.props.conf.blockchainProperties.activeUser = {
-            address: this.props.currentUser.id
+            address: (this.props.currentUser && this.props.currentUser.id) || await getMetaMaskAccount()
         };
 
         const certificate = this.props.certificates.find((c: Certificate.Entity) => {
