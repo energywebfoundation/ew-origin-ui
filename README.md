@@ -1,5 +1,14 @@
 # EW Origin UI
 
+This repository is to be used with: https://github.com/energywebfoundation/ew-utils-demo/tree/sonnen
+
+<img src="https://imgur.com/qMwSqj0.png"/>
+
+## Requirements
+
+- NodeJS v10
+- NPM
+
 ## Install
 
 In order to install the UI, you have to call `npm install`.
